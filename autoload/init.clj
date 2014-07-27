@@ -25,4 +25,4 @@
                 :when (.startsWith mname partial-methodname)]
              [mname (.getName v)])
         set vec to-hashmap ->vimlist)))
-  (println (search "(ns aaa (:import [java.net URI]))" "getN")))
+  #_(println (search "(ns aaa (:import [java.net URI]))" "getN")))
