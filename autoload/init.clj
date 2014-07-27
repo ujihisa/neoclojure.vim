@@ -21,8 +21,8 @@
       (ns searcher)
       (->> (for [[k v] (ns-imports the-ns)
                  method (.getMethods v)
-                :let [mname (.getName method)]
-                :when (.startsWith mname partial-methodname)]
+                 :let [mname (str "." (.getName method))]
+                 :when (.startsWith mname partial-methodname)]
              [mname (.getName v)])
         set vec to-hashmap ->vimlist)))
   #_(println (search "(ns aaa (:import [java.net URI]))" "getN")))

@@ -88,13 +88,9 @@ function! neoclojure#complete(findstart, base)
     let line_before = getline('.')[0 : col]
     return match(line_before, '.*\zs\.')
   else
-    let methodname_part = substitute(a:base, '^\.', '', '')
-    let dict = s:wow('~/git/cloft2/client/src/cloft2/app.clj', methodname_part)
+    let dict = s:wow('~/git/cloft2/client/src/cloft2/app.clj', a:base)
     let candidates = []
-    for k in keys(dict)
-      call add(candidates, '.' . k)
-    endfor
-    return candidates
+    return keys(dict)
   endif
 endfunction
 
