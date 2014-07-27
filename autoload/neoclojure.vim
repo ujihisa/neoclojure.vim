@@ -59,21 +59,43 @@ function! neoclojure#project_root_path(fname)
 endfunction
 
 function! s:main()
-  let [success, dirname] = neoclojure#project_root_path('~/git/cloft2/client/src/cloft2/app.clj')
+  call s:wow('~/git/cloft2/client/src/cloft2/app.clj', 'getL')
+endfunction
+
+function! s:wow(fname, methodname_part)
+  let [success, dirname] = neoclojure#project_root_path(a:fname)
   if success
     " TODO this should be done in PM
     let cwd = getcwd()
     execute 'lcd' dirname
-    let p = s:PM.of('neoclojure-' . dirname, 'lein repl')
+    let p = s:PM.of('neoclojure-' . dirname, 'lein trampoline run -m clojure.main/repl')
     execute 'lcd' cwd
 
     " OK, p is ready.
     let [success, dict] = s:search(p,
-          \ '(ns hello (:import [org.bukkit.entity Player]))', 'getL')
+          \ '(ns hello (:import [org.bukkit.entity Player]))', a:methodname_part)
     if success
-      echo dict
+      return dict
+    else
+      throw 'omg'
     endif
   endif
 endfunction
 
-call s:main()
+function! neoclojure#complete(findstart, base)
+  if a:findstart
+    let col = col('.')
+    let line_before = getline('.')[0 : col]
+    return match(line_before, '.*\zs\.')
+  else
+    let methodname_part = substitute(a:base, '^\.', '', '')
+    let dict = s:wow('~/git/cloft2/client/src/cloft2/app.clj', methodname_part)
+    let candidates = []
+    for k in keys(dict)
+      call add(candidates, '.' . k)
+    endfor
+    return candidates
+  endif
+endfunction
+
+" call s:main()
