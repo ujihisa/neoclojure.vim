@@ -1,8 +1,28 @@
-(defn vimlist [seq]
-  (str "[" (clojure.string/join ", " (map pr-str seq)) "]"))
-
-(defn search [partial-classname]
-  (vimlist (for [[k v] (ns-imports *ns*)
-                 :let [name (.getName k)]
-                 :when (.startsWith name partial-classname)]
-             name)))
+(do
+  (ns searcher)
+  (defn ->vimlist [x]
+    (cond
+      (vector? x)
+      (str "["
+           (clojure.string/join ", " (map ->vimlist x))
+           "]")
+      (map? x)
+      (str "{"
+           (clojure.string/join ", " (map #(str (->vimlist (first %)) ":" (->vimlist (second %))) x))
+           "}")
+      :else (pr-str x)))
+  (defn to-hashmap [darr]
+    (reduce (fn [acc [k v]]
+            (assoc acc k (conj (get acc k []) v)))
+          {} darr))
+  (defn search [ns-declare partial-methodname]
+    (eval (read-string ns-declare))
+    (let [the-ns *ns*]
+      (ns searcher)
+      (->> (for [[k v] (ns-imports the-ns)
+                 method (.getMethods v)
+                :let [mname (.getName method)]
+                :when (.startsWith mname partial-methodname)]
+             [mname (.getName v)])
+        set vec to-hashmap ->vimlist)))
+  (println (search "(ns aaa (:import [java.net URI]))" "getN")))
