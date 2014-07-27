@@ -59,10 +59,10 @@ function! neoclojure#project_root_path(fname)
 endfunction
 
 function! s:main()
-  call s:wow('~/git/cloft2/client/src/cloft2/app.clj', 'getL')
+  call s:java_method('~/git/cloft2/client/src/cloft2/app.clj', 'getL')
 endfunction
 
-function! s:wow(fname, methodname_part)
+function! s:java_method(fname, methodname_part)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
   if success
     " TODO this should be done in PM
@@ -88,7 +88,7 @@ function! neoclojure#complete(findstart, base)
     let line_before = getline('.')[0 : col]
     return match(line_before, '.*\zs\.')
   else
-    let dict = s:wow('~/git/cloft2/client/src/cloft2/app.clj', a:base)
+    let dict = s:java_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
     let candidates = []
     return keys(dict)
   endif
