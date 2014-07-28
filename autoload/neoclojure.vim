@@ -86,6 +86,13 @@ function! neoclojure#ns_declare(p, lines)
   endwhile
 endfunction
 
+function! neoclojure#complete_timed(findstart, base)
+  let t = reltime()
+  let rtn = neoclojure#complete(a:findstart, a:base)
+  echo string(reltimestr(reltime(t))) . 'sec'
+  return rtn
+endfunction
+
 function! neoclojure#complete(findstart, base)
   let p = s:give_me_p(expand('%'))
 
@@ -103,7 +110,7 @@ function! neoclojure#complete(findstart, base)
       if success
         let candidates = []
         for [k, v] in items(dict)
-          let rank = s:L.all('v:val =~ "^java.lang."', v) ? 0 : 1
+          let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
           call add(candidates, {
                 \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
                 \ 'icase': 1, 'kind': 'M'})
