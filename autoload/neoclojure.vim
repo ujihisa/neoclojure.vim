@@ -5,13 +5,6 @@ let s:_SFILEDIR = expand('<sfile>:p:h')
 " TODO this always succeeds
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
-  if p.is_new()
-    call p.reserve_wait(['.*=>'])
-          \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln(join(readfile(printf('%s/init.clj', s:_SFILEDIR)), ' '))
-          \.reserve_wait(['user=>'])
-  endif
   call p.reserve_writeln(printf(
         \ '(println (search "%s" "%s"))',
         \ escape(a:ns_declare, '"'),
@@ -62,14 +55,28 @@ function! s:main()
   echo s:java_instance_method('~/git/cloft2/client/src/cloft2/app.clj', '.get')
 endfunction
 
+function! s:give_me_p(dirname)
+  let cwd = getcwd()
+  execute 'lcd' a:dirname
+  let p = s:PM.of('neoclojure-' . a:dirname, 'lein trampoline run -m clojure.main/repl')
+  execute 'lcd' cwd
+
+  if p.is_new()
+    call p.reserve_wait(['.*=>'])
+          \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
+          \.reserve_wait(['user=>'])
+          \.reserve_writeln(join(readfile(printf('%s/init.clj', s:_SFILEDIR)), ' '))
+          \.reserve_wait(['user=>'])
+  endif
+
+  return p
+endfunction
+
 function! s:java_instance_method(fname, methodname_part)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
   if success
     " TODO this should be done in PM
-    let cwd = getcwd()
-    execute 'lcd' dirname
-    let p = s:PM.of('neoclojure-' . dirname, 'lein trampoline run -m clojure.main/repl')
-    execute 'lcd' cwd
+    let p = s:give_me_p(dirname)
 
     " OK, p is ready.
     let [success, dict] = s:search(p,
@@ -104,4 +111,4 @@ function! neoclojure#complete(findstart, base)
   endif
 endfunction
 
-call s:main()
+" call s:main()
