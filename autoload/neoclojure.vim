@@ -12,17 +12,18 @@ function! s:java_instance_methods(p, ns_declare, partial_methodname)
 
   while 1 " yes it is blocking for now
     let result = p.go_bulk()
-    echomsg string([result])
     if result.fail
-      echomsg 'neoclojure: lein process had died. Restarting...'
       call p.shutdown()
       " TODO of() is required
       " return s:java_instance_methods(p, a:ns_declare, a:partial_methodname)
 
-      return [0, {}]
+      return [0, 'neoclojure: lein process had died. Please try again.']
     elseif result.done
-      " return [1, result.out]
-      return [1, eval(split(result.out, "\n")[0])]
+      try
+        return [1, eval(split(result.out, "\n")[0])]
+      catch
+        return [0, string(result)]
+      endtry
     endif
   endwhile
 endfunction
@@ -59,7 +60,8 @@ function! s:main()
   if success
     echo dict
   else
-    throw 'omg'
+    echo '----------omg-------------'
+    echo dict
   endif
 endfunction
 
@@ -96,7 +98,7 @@ function! neoclojure#complete(findstart, base)
   else
     if a:base =~ '^\.'
       let [success, dict] = s:java_instance_methods(p,
-            \ '(ns hello #_(:import [org.bukkit.entity Player]))', a:base)
+            \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
       if success
         let candidates = []
         for [k, v] in items(dict)
@@ -104,6 +106,7 @@ function! neoclojure#complete(findstart, base)
         endfor
         return candidates
       else
+        echomsg dict
         return []
       endif
     else
