@@ -89,7 +89,7 @@ endfunction
 function! neoclojure#complete_timed(findstart, base)
   let t = reltime()
   let rtn = neoclojure#complete(a:findstart, a:base)
-  echo string(reltimestr(reltime(t))) . 'sec'
+  echomsg string(reltimestr(reltime(t))) . 'sec'
   return rtn
 endfunction
 
