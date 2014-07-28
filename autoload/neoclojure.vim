@@ -1,4 +1,4 @@
-let s:V = vital#of('vital') " Just for now
+let s:V = vital#of('neoclojure')
 let s:PM = s:V.import('ProcessManager')
 let s:L = s:V.import('Data.List')
 let s:_SFILEDIR = expand('<sfile>:p:h')

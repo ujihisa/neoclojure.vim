@@ -1,13 +1,20 @@
 # neoclojure.vim
 
+This is under development!
+
+* Java method-name completion works (type `(.` in your clojure buffer)
+    * no automatic `import` insertion yet
+    * `(ns ...)` has to be located as the first expression of the file
+
 ## Requirement
 
+* [leiningen](http://leiningen.org/)
 * [vimproc.vim](https://github.com/Shougo/vimproc.vim)
 
 Optional dependency plugins
 
 * [neocomplete.vim](https://github.com/Shougo/neocomplete.vim)
-* [unite.vim](https://github.com/Shougo/unite.vim)
+* NOT YET -- [unite.vim](https://github.com/Shougo/unite.vim)
 
 ## License
 
