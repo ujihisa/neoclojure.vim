@@ -16,6 +16,17 @@ Optional dependency plugins
 * [neocomplete.vim](https://github.com/Shougo/neocomplete.vim)
 * NOT YET -- [unite.vim](https://github.com/Shougo/unite.vim)
 
+## Installation
+
+~/.vimrc
+
+```vim
+augroup vimrc-neoclojure
+  autocmd!
+  autocmd FileType clojure setlocal omnifunc=neoclojure#complete
+augroup END
+```
+
 ## License
 
 GPL version 3 or any later version
