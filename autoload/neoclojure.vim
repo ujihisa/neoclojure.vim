@@ -79,6 +79,8 @@ function! s:java_method(fname, methodname_part)
     else
       throw 'omg'
     endif
+  else
+    throw 'omgomg'
   endif
 endfunction
 
@@ -86,11 +88,19 @@ function! neoclojure#complete(findstart, base)
   if a:findstart
     let col = col('.')
     let line_before = getline('.')[0 : col]
-    return match(line_before, '.*\zs\.')
+    return match(line_before, '.*\zs\.\w*$')
   else
-    let dict = s:java_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
-    let candidates = []
-    return keys(dict)
+    if a:base =~ '^\.'
+      " let dict = s:java_method(expand('%'), a:base)
+      let dict = s:java_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
+      let candidates = []
+      for [k, v] in items(dict)
+        call add(candidates, {'word': k, 'menu': join(v, ', ')})
+      endfor
+      return candidates
+    else
+      return []
+    endif
   endif
 endfunction
 
