@@ -28,19 +28,6 @@ function! s:java_instance_methods(p, ns_declare, partial_methodname)
   endwhile
 endfunction
 
-function! s:_old_main()
-  " just for now
-  echo 'first'
-  let s:before = reltime()
-  echo s:java_instance_methods('(ns hello (:import [java.util SortedMap]))', 'get')
-  echo reltimestr(reltime(s:before))
-
-  echo 'second'
-  let s:before = reltime()
-  echo s:java_instance_methods('(ns world (:import [java.net URI SocketException]))', 'get')
-  echo reltimestr(reltime(s:before))
-endfunction
-
 function! neoclojure#project_root_path(fname)
   let dirname = fnamemodify(a:fname, ':p:h')
   while dirname !=# '/' " TODO windows?
@@ -50,19 +37,6 @@ function! neoclojure#project_root_path(fname)
     let dirname = fnamemodify(dirname, ':p:h:h')
   endwhile
   return [0, '']
-endfunction
-
-function! s:main()
-  let p = s:give_me_p('~/git/cloft2/client/src/cloft2/app.clj')
-
-  let [success, dict] = s:java_instance_methods(p,
-        \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
-  if success
-    echo dict
-  else
-    echo '----------omg-------------'
-    echo dict
-  endif
 endfunction
 
 function! s:give_me_p(fname)
@@ -115,4 +89,30 @@ function! neoclojure#complete(findstart, base)
   endif
 endfunction
 
-" call s:main()
+function! s:_old_dev_test()
+  " just for now
+  echo 'first'
+  let s:before = reltime()
+  echo s:java_instance_methods('(ns hello (:import [java.util SortedMap]))', 'get')
+  echo reltimestr(reltime(s:before))
+
+  echo 'second'
+  let s:before = reltime()
+  echo s:java_instance_methods('(ns world (:import [java.net URI SocketException]))', 'get')
+  echo reltimestr(reltime(s:before))
+endfunction
+
+function! s:dev_test()
+  let p = s:give_me_p('~/git/cloft2/client/src/cloft2/app.clj')
+
+  let [success, dict] = s:java_instance_methods(p,
+        \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
+  if success
+    echo dict
+  else
+    echo '----------omg-------------'
+    echo dict
+  endif
+endfunction
+
+" call s:dev_test()
