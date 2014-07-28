@@ -1,4 +1,6 @@
-let s:PM = vital#of('vital').import('ProcessManager') " Just for now
+let s:V = vital#of('vital') " Just for now
+let s:PM = s:V.import('ProcessManager')
+let s:L = s:V.import('Data.List')
 let s:_SFILEDIR = expand('<sfile>:p:h')
 
 
@@ -20,7 +22,8 @@ function! s:java_instance_methods(p, ns_declare, partial_methodname)
       return [0, 'neoclojure: lein process had died. Please try again.']
     elseif result.done
       try
-        return [1, eval(split(result.out, "\n")[0])]
+        let rtn = [1, eval(split(result.out, "\n")[0])]
+        return rtn " this let is vital for avoiding Vim script's bug
       catch
         return [0, string(result)]
       endtry
@@ -63,6 +66,26 @@ function! s:give_me_p(fname)
   return p
 endfunction
 
+function! neoclojure#ns_declare(p, lines)
+  " return '(ns hello (:import [org.bukkit.entity Player]))'
+  call a:p.reserve_writeln(
+        \ printf(
+        \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr "(ns dummy)"))',
+        \   escape(join(a:lines), '"')))
+        \.reserve_read(['user=>'])
+  while 1 " blocking!
+    let result = a:p.go_bulk()
+    if result.done && len(result.err)
+      return [1, '(ns dummy)']
+    elseif result.done
+      return [1, result.out]
+    elseif result.fail
+      call a:p.shutdown()
+      return [0, 'Process is dead']
+    endif
+  endwhile
+endfunction
+
 function! neoclojure#complete(findstart, base)
   let p = s:give_me_p(expand('%'))
 
@@ -71,16 +94,22 @@ function! neoclojure#complete(findstart, base)
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
-      let [success, dict] = s:java_instance_methods(p,
-            \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
+      let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
+      if !success
+        return []
+      endif
+
+      let [success, dict] = s:java_instance_methods(p, ns_declare, a:base)
       if success
         let candidates = []
         for [k, v] in items(dict)
-          call add(candidates, {'word': k, 'menu': join(v, ', ')})
+          let rank = s:L.all('v:val =~ "^java.lang."', v) ? 0 : 1
+          call add(candidates, {
+                \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
+                \ 'icase': 1, 'kind': 'M'})
         endfor
-        return candidates
+        return s:L.sort_by(candidates, '-v:val["rank"]')
       else
-        echomsg dict
         return []
       endif
     else
@@ -104,6 +133,7 @@ endfunction
 
 function! s:dev_test()
   let p = s:give_me_p('~/git/cloft2/client/src/cloft2/app.clj')
+  echo neoclojure#ns_declare(p, readfile('/home/ujihisa/git/cloft2/client/src/cloft2/app.clj'))
 
   let [success, dict] = s:java_instance_methods(p,
         \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
