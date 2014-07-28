@@ -12,6 +12,7 @@ function! s:java_instance_methods(p, ns_declare, partial_methodname)
 
   while 1 " yes it is blocking for now
     let result = p.go_bulk()
+    echomsg string([result])
     if result.fail
       echomsg 'neoclojure: lein process had died. Restarting...'
       call p.shutdown()
@@ -51,13 +52,7 @@ function! neoclojure#project_root_path(fname)
 endfunction
 
 function! s:main()
-  let [success, dirname] = neoclojure#project_root_path('~/git/cloft2/client/src/cloft2/app.clj')
-  if success
-    " TODO this should be done in PM
-    let p = s:give_me_p(dirname)
-  else
-    throw 'omgomg'
-  endif
+  let p = s:give_me_p('~/git/cloft2/client/src/cloft2/app.clj')
 
   let [success, dict] = s:java_instance_methods(p,
         \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
@@ -68,10 +63,17 @@ function! s:main()
   endif
 endfunction
 
-function! s:give_me_p(dirname)
+function! s:give_me_p(fname)
+  let [success, dirname] = neoclojure#project_root_path(a:fname)
+
   let cwd = getcwd()
-  execute 'lcd' a:dirname
-  let p = s:PM.of('neoclojure-' . a:dirname, 'lein trampoline run -m clojure.main/repl')
+  execute 'lcd' dirname
+  if success
+    let p = s:PM.of('neoclojure-' . dirname, 'lein trampoline run -m clojure.main/repl')
+  else
+    let p = s:PM.of('neoclojure-nonproject' , 'lein run -m clojure.main/repl')
+  endif
+
   execute 'lcd' cwd
 
   if p.is_new()
@@ -86,13 +88,7 @@ function! s:give_me_p(dirname)
 endfunction
 
 function! neoclojure#complete(findstart, base)
-  let [success, dirname] = neoclojure#project_root_path(expand('%'))
-  if success
-    " TODO this should be done in PM
-    let p = s:give_me_p(dirname)
-  else
-    return a:findstart ? -1 : []
-  endif
+  let p = s:give_me_p(expand('%'))
 
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
@@ -100,7 +96,7 @@ function! neoclojure#complete(findstart, base)
   else
     if a:base =~ '^\.'
       let [success, dict] = s:java_instance_methods(p,
-            \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
+            \ '(ns hello #_(:import [org.bukkit.entity Player]))', a:base)
       if success
         let candidates = []
         for [k, v] in items(dict)
