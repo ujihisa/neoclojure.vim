@@ -2,8 +2,7 @@ let s:PM = vital#of('vital').import('ProcessManager') " Just for now
 let s:_SFILEDIR = expand('<sfile>:p:h')
 
 
-" TODO this always succeeds
-function! s:java_instance_method(p, ns_declare, partial_methodname)
+function! s:java_instance_methods(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
         \ '(println (search "%s" "%s"))',
@@ -17,7 +16,7 @@ function! s:java_instance_method(p, ns_declare, partial_methodname)
       echomsg 'neoclojure: lein process had died. Restarting...'
       call p.shutdown()
       " TODO of() is required
-      " return s:java_instance_method(p, a:ns_declare, a:partial_methodname)
+      " return s:java_instance_methods(p, a:ns_declare, a:partial_methodname)
 
       return [0, {}]
     elseif result.done
@@ -31,12 +30,12 @@ function! s:_old_main()
   " just for now
   echo 'first'
   let s:before = reltime()
-  echo s:java_instance_method('(ns hello (:import [java.util SortedMap]))', 'get')
+  echo s:java_instance_methods('(ns hello (:import [java.util SortedMap]))', 'get')
   echo reltimestr(reltime(s:before))
 
   echo 'second'
   let s:before = reltime()
-  echo s:java_instance_method('(ns world (:import [java.net URI SocketException]))', 'get')
+  echo s:java_instance_methods('(ns world (:import [java.net URI SocketException]))', 'get')
   echo reltimestr(reltime(s:before))
 endfunction
 
@@ -60,7 +59,7 @@ function! s:main()
     throw 'omgomg'
   endif
 
-  let [success, dict] = s:java_instance_method(p,
+  let [success, dict] = s:java_instance_methods(p,
         \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
   if success
     echo dict
@@ -100,7 +99,7 @@ function! neoclojure#complete(findstart, base)
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
-      let [success, dict] = s:java_instance_method(p,
+      let [success, dict] = s:java_instance_methods(p,
             \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
       if success
         let candidates = []
