@@ -3,7 +3,7 @@ let s:_SFILEDIR = expand('<sfile>:p:h')
 
 
 " TODO this always succeeds
-function! s:search(p, ns_declare, partial_methodname)
+function! s:java_instance_method(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
         \ '(println (search "%s" "%s"))',
@@ -17,9 +17,9 @@ function! s:search(p, ns_declare, partial_methodname)
       echomsg 'neoclojure: lein process had died. Restarting...'
       call p.shutdown()
       " TODO of() is required
-      " return s:search(p, a:ns_declare, a:partial_methodname)
+      " return s:java_instance_method(p, a:ns_declare, a:partial_methodname)
 
-      return [0, '']
+      return [0, {}]
     elseif result.done
       " return [1, result.out]
       return [1, eval(split(result.out, "\n")[0])]
@@ -31,12 +31,12 @@ function! s:_old_main()
   " just for now
   echo 'first'
   let s:before = reltime()
-  echo s:search('(ns hello (:import [java.util SortedMap]))', 'get')
+  echo s:java_instance_method('(ns hello (:import [java.util SortedMap]))', 'get')
   echo reltimestr(reltime(s:before))
 
   echo 'second'
   let s:before = reltime()
-  echo s:search('(ns world (:import [java.net URI SocketException]))', 'get')
+  echo s:java_instance_method('(ns world (:import [java.net URI SocketException]))', 'get')
   echo reltimestr(reltime(s:before))
 endfunction
 
@@ -60,7 +60,7 @@ function! s:main()
     throw 'omgomg'
   endif
 
-  let [success, dict] = s:search(p,
+  let [success, dict] = s:java_instance_method(p,
         \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
   if success
     echo dict
@@ -86,16 +86,6 @@ function! s:give_me_p(dirname)
   return p
 endfunction
 
-function! s:java_instance_method(p, methodname_part)
-  let [success, dict] = s:search(a:p,
-        \ '(ns hello (:import [org.bukkit.entity Player]))', a:methodname_part)
-  if success
-    return dict
-  else
-    throw 'omg'
-  endif
-endfunction
-
 function! neoclojure#complete(findstart, base)
   let [success, dirname] = neoclojure#project_root_path(expand('%'))
   if success
@@ -110,7 +100,7 @@ function! neoclojure#complete(findstart, base)
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
-      let [success, dict] = s:search(p,
+      let [success, dict] = s:java_instance_method(p,
             \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
       if success
         let candidates = []
@@ -127,4 +117,4 @@ function! neoclojure#complete(findstart, base)
   endif
 endfunction
 
-call s:main()
+" call s:main()
