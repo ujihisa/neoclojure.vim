@@ -59,10 +59,10 @@ function! neoclojure#project_root_path(fname)
 endfunction
 
 function! s:main()
-  call s:java_method('~/git/cloft2/client/src/cloft2/app.clj', 'getL')
+  echo s:java_instance_method('~/git/cloft2/client/src/cloft2/app.clj', '.get')
 endfunction
 
-function! s:java_method(fname, methodname_part)
+function! s:java_instance_method(fname, methodname_part)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
   if success
     " TODO this should be done in PM
@@ -91,8 +91,8 @@ function! neoclojure#complete(findstart, base)
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
-      " let dict = s:java_method(expand('%'), a:base)
-      let dict = s:java_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
+      " let dict = s:java_instance_method(expand('%'), a:base)
+      let dict = s:java_instance_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
       let candidates = []
       for [k, v] in items(dict)
         call add(candidates, {'word': k, 'menu': join(v, ', ')})
@@ -104,4 +104,4 @@ function! neoclojure#complete(findstart, base)
   endif
 endfunction
 
-" call s:main()
+call s:main()
