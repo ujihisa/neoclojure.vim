@@ -60,7 +60,13 @@ function! s:main()
     throw 'omgomg'
   endif
 
-  echo s:java_instance_method(p, '.get')
+  let [success, dict] = s:search(p,
+        \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
+  if success
+    echo dict
+  else
+    throw 'omg'
+  endif
 endfunction
 
 function! s:give_me_p(dirname)
@@ -104,17 +110,21 @@ function! neoclojure#complete(findstart, base)
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
-      " let dict = s:java_instance_method(expand('%'), a:base)
-      let dict = s:java_instance_method(p, a:base)
-      let candidates = []
-      for [k, v] in items(dict)
-        call add(candidates, {'word': k, 'menu': join(v, ', ')})
-      endfor
-      return candidates
+      let [success, dict] = s:search(p,
+            \ '(ns hello (:import [org.bukkit.entity Player]))', a:base)
+      if success
+        let candidates = []
+        for [k, v] in items(dict)
+          call add(candidates, {'word': k, 'menu': join(v, ', ')})
+        endfor
+        return candidates
+      else
+        return []
+      endif
     else
       return []
     endif
   endif
 endfunction
 
-" call s:main()
+call s:main()
