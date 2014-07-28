@@ -52,7 +52,15 @@ function! neoclojure#project_root_path(fname)
 endfunction
 
 function! s:main()
-  echo s:java_instance_method('~/git/cloft2/client/src/cloft2/app.clj', '.get')
+  let [success, dirname] = neoclojure#project_root_path('~/git/cloft2/client/src/cloft2/app.clj')
+  if success
+    " TODO this should be done in PM
+    let p = s:give_me_p(dirname)
+  else
+    throw 'omgomg'
+  endif
+
+  echo s:java_instance_method(p, '.get')
 endfunction
 
 function! s:give_me_p(dirname)
@@ -72,34 +80,32 @@ function! s:give_me_p(dirname)
   return p
 endfunction
 
-function! s:java_instance_method(fname, methodname_part)
-  let [success, dirname] = neoclojure#project_root_path(a:fname)
+function! s:java_instance_method(p, methodname_part)
+  let [success, dict] = s:search(a:p,
+        \ '(ns hello (:import [org.bukkit.entity Player]))', a:methodname_part)
   if success
-    " TODO this should be done in PM
-    let p = s:give_me_p(dirname)
-
-    " OK, p is ready.
-    let [success, dict] = s:search(p,
-          \ '(ns hello (:import [org.bukkit.entity Player]))', a:methodname_part)
-    if success
-      return dict
-    else
-      throw 'omg'
-    endif
+    return dict
   else
-    throw 'omgomg'
+    throw 'omg'
   endif
 endfunction
 
 function! neoclojure#complete(findstart, base)
+  let [success, dirname] = neoclojure#project_root_path(expand('%'))
+  if success
+    " TODO this should be done in PM
+    let p = s:give_me_p(dirname)
+  else
+    return a:findstart ? -1 : []
+  endif
+
   if a:findstart
-    let col = col('.')
-    let line_before = getline('.')[0 : col]
+    let line_before = getline('.')[0 : col('.') - 2]
     return match(line_before, '.*\zs\.\w*$')
   else
     if a:base =~ '^\.'
       " let dict = s:java_instance_method(expand('%'), a:base)
-      let dict = s:java_instance_method('~/git/cloft2/client/src/cloft2/app.clj', a:base)
+      let dict = s:java_instance_method(p, a:base)
       let candidates = []
       for [k, v] in items(dict)
         call add(candidates, {'word': k, 'menu': join(v, ', ')})
