@@ -138,18 +138,29 @@ function! s:_old_dev_test()
   echo reltimestr(reltime(s:before))
 endfunction
 
-function! s:dev_test()
-  let p = s:give_me_p('~/git/cloft2/client/src/cloft2/app.clj')
-  echo neoclojure#ns_declare(p, readfile('/home/ujihisa/git/cloft2/client/src/cloft2/app.clj'))
+function! neoclojure#test()
+  let testfile = printf('%s/../test/src/cloft2/fast_dash.clj', s:_SFILEDIR)
 
-  let [success, dict] = s:java_instance_methods(p,
-        \ '(ns hello (:import [org.bukkit.entity Player]))', '.get')
+  let p = s:give_me_p(testfile)
+
+  let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
+  if !success
+    return
+  endif
+  let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
+  echo ['ns declare', ns_dec == expected ? 'ok' : 'wrong']
+
+
+  let s:before = reltime()
+  let [success, dict] = s:java_instance_methods(p, ns_dec, '.getO')
   if success
-    echo dict
+    let expected_dict = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
+    echo ['instance methods', dict == expected_dict ? 'ok' : 'wrong']
+    echo ['instance methods took', reltimestr(reltime(s:before))]
   else
     echo '----------omg-------------'
     echo dict
   endif
 endfunction
 
-" call s:dev_test()
+call neoclojure#test()
