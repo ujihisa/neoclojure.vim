@@ -67,7 +67,6 @@ function! s:give_me_p(fname)
 endfunction
 
 function! neoclojure#ns_declare(p, lines)
-  " return '(ns hello (:import [org.bukkit.entity Player]))'
   call a:p.reserve_writeln(
         \ printf(
         \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr "(ns dummy)"))',
@@ -125,42 +124,31 @@ function! neoclojure#complete(findstart, base)
   endif
 endfunction
 
-function! s:_old_dev_test()
-  " just for now
-  echo 'first'
-  let s:before = reltime()
-  echo s:java_instance_methods('(ns hello (:import [java.util SortedMap]))', 'get')
-  echo reltimestr(reltime(s:before))
-
-  echo 'second'
-  let s:before = reltime()
-  echo s:java_instance_methods('(ns world (:import [java.net URI SocketException]))', 'get')
-  echo reltimestr(reltime(s:before))
-endfunction
-
 function! neoclojure#test()
   let testfile = printf('%s/../test/src/cloft2/fast_dash.clj', s:_SFILEDIR)
 
   let p = s:give_me_p(testfile)
 
+  let before = reltime()
   let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
   if !success
     return
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
   echo ['ns declare', ns_dec == expected ? 'ok' : 'wrong']
+  echo ['ns declare took', reltimestr(reltime(before))]
 
 
-  let s:before = reltime()
+  let before = reltime()
   let [success, dict] = s:java_instance_methods(p, ns_dec, '.getO')
   if success
     let expected_dict = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
     echo ['instance methods', dict == expected_dict ? 'ok' : 'wrong']
-    echo ['instance methods took', reltimestr(reltime(s:before))]
+    echo ['instance methods took', reltimestr(reltime(before))]
   else
     echo '----------omg-------------'
     echo dict
   endif
 endfunction
 
-call neoclojure#test()
+" call neoclojure#test()
