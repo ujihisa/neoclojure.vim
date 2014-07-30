@@ -99,7 +99,7 @@ function! neoclojure#complete(findstart, base)
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
 
-    let java_namespace = match(line_before, '\(\w\+\.\)\+\w*$')
+    let java_namespace = match(line_before, '\(\w\+/\)*\(\w\+\.\)\?\w\+$')
     if java_namespace != -1
       return java_namespace
     endif
