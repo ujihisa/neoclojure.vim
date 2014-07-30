@@ -39,4 +39,4 @@
             set vec to-hashmap) ]
       (-> (merge instance-methods static-methods)
         ->vimlist)))
-  #_(println (search "(ns aaa (:import [java.net URI]))" "getN")))
+  #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
