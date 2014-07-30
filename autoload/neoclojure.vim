@@ -22,7 +22,7 @@ function! s:search(p, ns_declare, partial_methodname)
       return [0, 'neoclojure: lein process had died. Please try again.']
     elseif result.done
       try
-        let rtn = [1, eval(split(result.out, "\r?\n")[0])]
+        let rtn = [1, eval(split(result.out, '\r\?\n')[0])]
         return rtn " this let is vital for avoiding Vim script's bug
       catch
         return [0, string(result)]
