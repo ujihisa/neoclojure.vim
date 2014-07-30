@@ -33,8 +33,8 @@ function! s:search(p, ns_declare, partial_methodname)
 endfunction
 
 function! neoclojure#project_root_path(fname)
-  let dirname = fnamemodify(a:fname, ':p:h')
-  while dirname !=# '/' " TODO windows?
+  let dirname = fnamemodify(a:fname, ':p:h:gs?\\?/?g')
+  while dirname !=# '/'
     if filereadable(dirname . '/project.clj')
       return [1, dirname]
     endif
