@@ -18,7 +18,7 @@
   (defn search [ns-declare phrase]
     (eval (read-string ns-declare))
     (let [the-ns *ns*
-          instance-methods
+          java-instance-methods
           (do
             (ns searcher)
             (->> (for [[k v] (ns-imports the-ns)
@@ -27,7 +27,7 @@
                        :when (.startsWith mname phrase)]
                    [mname (.getName v)])
               set vec to-hashmap))
-          static-methods
+          java-static-methods
           (->> (for [[k v] (ns-imports the-ns)
                      method (.getMethods v)
                      :let [mname (str k "/" (.getName method))]
@@ -37,7 +37,7 @@
                              (.startsWith mname phrase))]
                  [mname ""])
             set vec to-hashmap)
-          enum-constants
+          java-enum-constants
           (->> (for [[k v] (ns-imports the-ns)
                      enum (.getEnumConstants v)
                      :let [ename (str k "/" (.name enum))]
@@ -54,9 +54,9 @@
                      :when (.startsWith fqdn-name phrase)]
                  [fqdn-name ""])
             set vec to-hashmap) ]
-      (-> instance-methods
+      (-> java-instance-methods
         (merge java-namespaces)
-        (merge static-methods)
-        (merge enum-constants)
+        (merge java-static-methods)
+        (merge java-enum-constants)
         ->vimlist)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
