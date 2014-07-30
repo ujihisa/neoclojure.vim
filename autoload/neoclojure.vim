@@ -99,16 +99,26 @@ function! neoclojure#complete(findstart, base)
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
 
+    let java_namespace = match(line_before, '\(\w\+\.\)\+\w*$')
+    if java_namespace != -1
+      return java_namespace
+    endif
+
     let instance_method = match(line_before, '.*\zs\.[^\s\(\)\[\]\{\}]*$')
     if instance_method != -1
       return instance_method
     endif
 
     let static_method = match(line_before, '\w\+/.*$')
-    return static_method
+    if static_method != -1
+      return static_method
+    endif
+
+    " verbose on purpose
+    return -1
   else
     " echomsg string([a:base])
-    if a:base =~ '^\.\|\w\+/.*'
+    if 1 " a:base =~ '^\.\|\w\+/.*'
       let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
       if !success
         return []
