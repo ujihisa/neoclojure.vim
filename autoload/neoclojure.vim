@@ -116,9 +116,9 @@ function! neoclojure#complete(findstart, base)
       return instance_method
     endif
 
-    let static_method = match(line_before, '\w\+/.*$')
-    if static_method != -1
-      return static_method
+    let static_method_enum = match(line_before, '\w\+/.*$')
+    if static_method_enum != -1
+      return static_method_enum
     endif
 
     " verbose on purpose
