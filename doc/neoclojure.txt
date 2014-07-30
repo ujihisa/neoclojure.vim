@@ -1,6 +1,6 @@
 *neoclojure.txt*	Wow are you already trying this?
 
-Version: 0.1
+Version: 0.1-dev
 Author: ujihisa <ujihisa at gmail com>
 
 CONTENTS					*neoclojure-contents*
