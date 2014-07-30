@@ -32,6 +32,7 @@ function! s:search(p, ns_declare, partial_methodname)
   endwhile
 endfunction
 
+" TODO move this to vital
 function! s:is_root_directory(path)
   if a:path ==# '/'
     return 1
@@ -67,7 +68,7 @@ function! s:give_me_p(fname)
     call p.reserve_wait(['.*=>'])
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
-          \.reserve_writeln(join(readfile(printf('%s/init.clj', s:_SFILEDIR)), ' '))
+          \.reserve_writeln(join(readfile(printf('%s/neoclojure.clj', s:_SFILEDIR)), ' '))
           \.reserve_wait(['user=>'])
   endif
 

@@ -1,5 +1,5 @@
 (do
-  (ns searcher)
+  (ns neoclojure)
   (defn ^String ->vimlist [x]
     (cond
       (vector? x)
@@ -20,7 +20,7 @@
     (let [the-ns *ns*
           java-instance-methods
           (do
-            (ns searcher)
+            (ns neoclojure)
             (->> (for [[k v] (ns-imports the-ns)
                        method (.getMethods v)
                        :let [mname (str "." (.getName method))]
