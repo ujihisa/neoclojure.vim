@@ -26,7 +26,7 @@
                        :let [mname (str "." (.getName method))]
                        :when (.startsWith mname phrase)]
                    [mname (.getName v)])
-              set vec to-hashmap))
+              set))
           java-static-methods
           (->> (for [[k v] (ns-imports the-ns)
                      method (.getMethods v)
@@ -36,7 +36,7 @@
                                java.lang.reflect.Modifier/isStatic)
                              (.startsWith mname phrase))]
                  [mname ""])
-            set vec to-hashmap)
+            set)
           java-enum-constants
           (->> (for [[k v] (ns-imports the-ns)
                      enum (.getEnumConstants v)
@@ -47,16 +47,17 @@
                                java.lang.reflect.Modifier/isStatic)
                              (.startsWith ename phrase))]
                  [ename (.getName v)])
-            set vec to-hashmap)
+            set)
           java-namespaces
           (->> (for [[_ v] (ns-imports the-ns)
                      :let [fqdn-name (.getName v)]
                      :when (.startsWith fqdn-name phrase)]
                  [fqdn-name ""])
-            set vec to-hashmap) ]
-      (-> java-instance-methods
-        (merge java-namespaces)
-        (merge java-static-methods)
-        (merge java-enum-constants)
+            set)]
+      (-> (concat java-instance-methods
+                  java-namespaces
+                  java-static-methods
+                  java-enum-constants)
+        to-hashmap
         ->vimlist)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
