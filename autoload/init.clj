@@ -37,14 +37,26 @@
                              (.startsWith mname phrase))]
                  [mname ""])
             set vec to-hashmap)
+          enum-constants
+          (->> (for [[k v] (ns-imports the-ns)
+                     enum (.getEnumConstants v)
+                     :let [ename (str k "/" (.name enum))]
+                     :when (and
+                             true
+                             #_(-> method .getModifiers
+                               java.lang.reflect.Modifier/isStatic)
+                             (.startsWith ename phrase))]
+                 [ename (.getName v)])
+            set vec to-hashmap)
           java-namespaces
           (->> (for [[_ v] (ns-imports the-ns)
                      :let [fqdn-name (.getName v)]
                      :when (.startsWith fqdn-name phrase)]
                  [fqdn-name ""])
-            set vec to-hashmap)]
+            set vec to-hashmap) ]
       (-> instance-methods
-        (merge static-methods)
         (merge java-namespaces)
+        (merge static-methods)
+        (merge enum-constants)
         ->vimlist)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))

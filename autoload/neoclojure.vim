@@ -151,7 +151,8 @@ function! neoclojure#test()
   let before = reltime()
   let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
   if !success
-    return 'process is dead'
+    echo 'Process is dead. Auto-restarting...'
+    return neoclojure#test()
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
   echo ['ns declare', ns_dec == expected ? 'ok' : 'wrong']
@@ -183,6 +184,14 @@ function! neoclojure#test()
     echomsg string(['java namespaces', dict == expected ? 'ok' : 'wrong'])
   else
     return 'failed at java namespaces'
+  endif
+
+  let [success, dict] = s:search(p, ns_dec, 'Material/DIR')
+  let expected = {'Material/DIRT': ['']}
+  if success
+    echomsg string(['java enum constants', dict == expected ? 'ok' : 'wrong'])
+  else
+    return 'failed at java enum constants'
   endif
 
   return 'success'
