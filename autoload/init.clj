@@ -36,7 +36,15 @@
                                java.lang.reflect.Modifier/isStatic)
                              (.startsWith mname partial-methodname))]
                  [mname ""])
-            set vec to-hashmap) ]
-      (-> (merge instance-methods static-methods)
+            set vec to-hashmap)
+          java-namespaces
+          (->> (for [[_ v] (ns-imports the-ns)
+                     :let [fqdn-name (.getName v)]
+                     :when (.startsWith fqdn-name partial-methodname)]
+                 [fqdn-name ""])
+            set vec to-hashmap)]
+      (-> instance-methods
+        (merge static-methods)
+        (merge java-namespaces)
         ->vimlist)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))

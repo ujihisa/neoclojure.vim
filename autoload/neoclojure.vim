@@ -165,6 +165,16 @@ function! neoclojure#test()
   else
     return 'failed at instance method search'
   endif
+
+  let [success, dict] = s:search(p, ns_dec, 'java.util.')
+  unlet! expected
+  let expected = {'java.util.concurrent.Callable': ['']}
+  if success
+    echomsg string(['java namespaces', dict == expected ? 'ok' : 'wrong'])
+  else
+    return 'failed at java namespaces'
+  endif
+
   return 'success'
 endfunction
 
