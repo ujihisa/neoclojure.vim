@@ -124,29 +124,25 @@ function! neoclojure#complete(findstart, base)
     " verbose on purpose
     return -1
   else
-    " echomsg string([a:base])
-    if 1 " a:base =~ '^\.\|\w\+/.*'
-      let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
-      if !success
-        return []
-      endif
+    let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
+    if !success
+      return []
+    endif
 
-      let [success, dict] = s:search(p, ns_declare, a:base)
-      if success
-        let candidates = []
-        for [k, v] in items(dict)
-          let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
-          call add(candidates, {
-                \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
-                \ 'icase': 1, 'kind': 'M'})
-        endfor
-        return s:L.sort_by(candidates, '-v:val["rank"]')
-      else
-        return []
-      endif
+    let [success, dict] = s:search(p, ns_declare, a:base)
+    if success
+      let candidates = []
+      for [k, v] in items(dict)
+        let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
+        call add(candidates, {
+              \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
+              \ 'icase': 1, 'kind': 'M'})
+      endfor
+      return s:L.sort_by(candidates, '-v:val["rank"]')
     else
       return []
     endif
+    else
   endif
 endfunction
 
@@ -193,10 +189,10 @@ function! neoclojure#test()
     return 'failed at java namespaces'
   endif
 
-  let [success, dict] = s:search(p, ns_dec, 'Material/DIR')
-  let expected = {'Material/DIRT': ['org.bukkit.Material']}
+  let [success, dict] = s:search(p, ns_dec, 'Thread$State/B')
+  let expected = {'Thread$State/BLOCKED': ['java.lang.Thread$State']}
   if success
-    echomsg string(['java enum constants', dict == expected ? 'ok' : 'wrong'])
+    echomsg string(['java enum constants', dict == expected ? 'ok' : string(dict)])
   else
     return 'failed at java enum constants'
   endif
