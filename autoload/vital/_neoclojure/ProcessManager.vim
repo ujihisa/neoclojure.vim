@@ -60,14 +60,14 @@ function! s:read_wait(i, wait, endpatterns)
 
   if s:status(a:i) ==# 'inactive'
     let s:state[a:i] = 'inactive'
-    return [p.stdout.read(), p.stderr.read(), 'inactive']
+    return [p.stdout.read(-1, 0), p.stderr.read(-1, 0), 'inactive']
   endif
 
   let out_memo = ''
   let err_memo = ''
   let lastchanged = reltime()
   while 1
-    let [x, y] = [p.stdout.read(), p.stderr.read()]
+    let [x, y] = [p.stdout.read(-1, 0), p.stderr.read(-1, 0)]
     if x ==# '' && y ==# ''
       if str2float(reltimestr(reltime(lastchanged))) > a:wait
         let s:state[a:i] = 'reading'
