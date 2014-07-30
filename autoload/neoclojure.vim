@@ -32,9 +32,16 @@ function! s:search(p, ns_declare, partial_methodname)
   endwhile
 endfunction
 
+function! s:is_root_directory(path)
+  if a:path ==# '/'
+    return 1
+  endif
+  return (has('win32') || has('win64')) && a:path =~ '^[a-zA-Z]:[/\\]$'
+endfunction
+
 function! neoclojure#project_root_path(fname)
-  let dirname = fnamemodify(a:fname, ':p:h:gs?\\?/?g')
-  while dirname !=# '/'
+  let dirname = fnamemodify(a:fname, ':p:h')
+  while !s:is_root_directory(dirname)
     if filereadable(dirname . '/project.clj')
       return [1, dirname]
     endif
