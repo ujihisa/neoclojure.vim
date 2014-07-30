@@ -161,11 +161,11 @@ function! neoclojure#test()
   let [success, dict] = s:search(p, ns_dec, 'String/')
   if success
     let expect = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
-    echomsg string(['static methods', dict == expect])
+    echomsg string(['static methods', dict == expect ? 'ok' : 'wrong'])
   else
     return 'failed at instance method search'
   endif
   return 'success'
 endfunction
 
-echo neoclojure#test()
+" echo neoclojure#test()
