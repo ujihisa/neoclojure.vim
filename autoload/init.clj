@@ -15,7 +15,7 @@
     (reduce (fn [acc [k v]]
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
-  (defn search [ns-declare partial-methodname]
+  (defn search [ns-declare phrase]
     (eval (read-string ns-declare))
     (let [the-ns *ns*
           instance-methods
@@ -24,7 +24,7 @@
             (->> (for [[k v] (ns-imports the-ns)
                        method (.getMethods v)
                        :let [mname (str "." (.getName method))]
-                       :when (.startsWith mname partial-methodname)]
+                       :when (.startsWith mname phrase)]
                    [mname (.getName v)])
               set vec to-hashmap))
           static-methods
@@ -34,13 +34,13 @@
                      :when (and
                              (-> method .getModifiers
                                java.lang.reflect.Modifier/isStatic)
-                             (.startsWith mname partial-methodname))]
+                             (.startsWith mname phrase))]
                  [mname ""])
             set vec to-hashmap)
           java-namespaces
           (->> (for [[_ v] (ns-imports the-ns)
                      :let [fqdn-name (.getName v)]
-                     :when (.startsWith fqdn-name partial-methodname)]
+                     :when (.startsWith fqdn-name phrase)]
                  [fqdn-name ""])
             set vec to-hashmap)]
       (-> instance-methods
