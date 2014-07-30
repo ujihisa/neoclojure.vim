@@ -101,29 +101,32 @@ function! neoclojure#complete_timed(findstart, base)
   return rtn
 endfunction
 
+function! s:findstart(line_before)
+  let java_namespace = match(a:line_before, '\(\w\+/\)*\(\w\+\.\)\?\w\+$')
+  if java_namespace != -1
+    return java_namespace
+  endif
+
+  let instance_method = match(a:line_before, '.*\zs\.[^\s\(\)\[\]\{\}]*$')
+  if instance_method != -1
+    return instance_method
+  endif
+
+  let static_method_enum = match(a:line_before, '\w\+/.*$')
+  if static_method_enum != -1
+    return static_method_enum
+  endif
+
+  " verbose on purpose
+  return -1
+endfunction
+
 function! neoclojure#complete(findstart, base)
   let p = s:give_me_p(expand('%'))
 
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
-
-    let java_namespace = match(line_before, '\(\w\+/\)*\(\w\+\.\)\?\w\+$')
-    if java_namespace != -1
-      return java_namespace
-    endif
-
-    let instance_method = match(line_before, '.*\zs\.[^\s\(\)\[\]\{\}]*$')
-    if instance_method != -1
-      return instance_method
-    endif
-
-    let static_method_enum = match(line_before, '\w\+/.*$')
-    if static_method_enum != -1
-      return static_method_enum
-    endif
-
-    " verbose on purpose
-    return -1
+    return s:findstart(line_before)
   else
     let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
     if !success
@@ -200,5 +203,12 @@ function! neoclojure#test()
 
   return 'success'
 endfunction
+
+function! neoclojure#test_findstart()
+  echo s:findstart('') == -1
+  echo s:findstart('aaa b') == 4
+  " echo s:findstart('aaa b.')
+endfunction
+" call neoclojure#test_findstart()
 
 " echo neoclojure#test()
