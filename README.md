@@ -36,8 +36,8 @@ augroup END
     * Class names e.g. `java.lang.String`
     * Instance Methods e.g. `(.getLocation player)`
     * Static Methods e.g. `(String/format)`
-    * Static Enum Constants `(Thread$STATE/BLOCKED)`
-    * Based on `(ns (:import ...))`
+    * Static Enum Constants `Thread$STATE/BLOCKED`
+    * ... They are based on `(ns (:import ...))`
 
 * First time completion takes very long time (like 4sec)
     * it'll be done asynchronously in the future.
