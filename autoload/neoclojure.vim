@@ -106,7 +106,7 @@ function! neoclojure#complete(findstart, base)
     let static_method = match(line_before, '\w\+/.*$')
     return static_method
   else
-    echomsg string([a:base])
+    " echomsg string([a:base])
     if a:base =~ '^\.\|\w\+/.*'
       let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
       if !success
