@@ -12,5 +12,24 @@ INTRODUCTION					*neoclojure-introduction*
 
 Enjoy.
 
+>
+	augroup vimrc-neoclojure
+	  autocmd!
+	  autocmd FileType clojure setlocal omnifunc=neoclojure#complete
+	augroup END
+<
+
+Java instance method completion:
+
+>
+	(.g
+<
+
+Java static method completion (TODO):
+
+>
+	(String/f
+<
+
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
