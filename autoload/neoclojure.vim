@@ -141,7 +141,7 @@ function! neoclojure#test()
   let before = reltime()
   let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
   if !success
-    return
+    return 'process is dead'
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
   echo ['ns declare', ns_dec == expected ? 'ok' : 'wrong']
@@ -155,12 +155,17 @@ function! neoclojure#test()
     echo ['instance methods', dict == expected_dict ? 'ok' : 'wrong']
     echo ['instance methods took', reltimestr(reltime(before))]
   else
-    echo '----------omg-------------'
-    echo dict
+    return 'instance method search failed'
   endif
 
-  " let [success, dict] = s:search(p, ns_dec, 'String/')
-  " echomsg string([success, dict])
+  let [success, dict] = s:search(p, ns_dec, 'String/')
+  if success
+    expect = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
+    echomsg string(['static methods', dict == expect])
+  else
+    return 'failed at instance method search'
+  endif
+  return 'success'
 endfunction
 
-" call neoclojure#test()
+echo neoclojure#test()
