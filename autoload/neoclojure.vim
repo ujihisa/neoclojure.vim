@@ -4,7 +4,7 @@ let s:L = s:V.import('Data.List')
 let s:_SFILEDIR = expand('<sfile>:p:h')
 
 
-function! s:java_instance_methods(p, ns_declare, partial_methodname)
+function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
         \ '(println (search "%s" "%s"))',
@@ -17,7 +17,7 @@ function! s:java_instance_methods(p, ns_declare, partial_methodname)
     if result.fail
       call p.shutdown()
       " TODO of() is required
-      " return s:java_instance_methods(p, a:ns_declare, a:partial_methodname)
+      " return s:search(p, a:ns_declare, a:partial_methodname)
 
       return [0, 'neoclojure: lein process had died. Please try again.']
     elseif result.done
@@ -97,15 +97,23 @@ function! neoclojure#complete(findstart, base)
 
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
-    return match(line_before, '.*\zs\.\w*$')
+
+    let instance_method = match(line_before, '.*\zs\.[^\s\(\)\[\]\{\}]*$')
+    if instance_method != -1
+      return instance_method
+    endif
+
+    let static_method = match(line_before, '\w\+/.*$')
+    return static_method
   else
-    if a:base =~ '^\.'
+    echomsg string([a:base])
+    if a:base =~ '^\.\|\w\+/.*'
       let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
       if !success
         return []
       endif
 
-      let [success, dict] = s:java_instance_methods(p, ns_declare, a:base)
+      let [success, dict] = s:search(p, ns_declare, a:base)
       if success
         let candidates = []
         for [k, v] in items(dict)
@@ -140,7 +148,7 @@ function! neoclojure#test()
 
 
   let before = reltime()
-  let [success, dict] = s:java_instance_methods(p, ns_dec, '.getO')
+  let [success, dict] = s:search(p, ns_dec, '.getO')
   if success
     let expected_dict = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
     echo ['instance methods', dict == expected_dict ? 'ok' : 'wrong']
@@ -149,6 +157,9 @@ function! neoclojure#test()
     echo '----------omg-------------'
     echo dict
   endif
+
+  " let [success, dict] = s:search(p, ns_dec, 'String/')
+  " echomsg string([success, dict])
 endfunction
 
 " call neoclojure#test()

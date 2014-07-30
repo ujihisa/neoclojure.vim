@@ -25,7 +25,7 @@ Java instance method completion:
 	(.g
 <
 
-Java static method completion (TODO):
+Java static method completion:
 
 >
 	(String/f
