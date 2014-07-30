@@ -169,8 +169,9 @@ function! neoclojure#test()
   let before = reltime()
   let [success, dict] = s:search(p, ns_dec, '.getO')
   if success
-    let expected_dict = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
-    echo ['instance methods', dict == expected_dict ? 'ok' : 'wrong']
+    unlet! expected
+    let expected = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
+    echo ['instance methods', dict == expected ? 'ok' : 'wrong']
     echo ['instance methods took', reltimestr(reltime(before))]
   else
     return 'instance method search failed'
@@ -178,14 +179,13 @@ function! neoclojure#test()
 
   let [success, dict] = s:search(p, ns_dec, 'String/')
   if success
-    let expect = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
-    echomsg string(['static methods', dict == expect ? 'ok' : 'wrong'])
+    let expected = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
+    echomsg string(['static methods', dict == expected ? 'ok' : 'wrong'])
   else
     return 'failed at instance method search'
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'java.util.')
-  unlet! expected
   let expected = {'java.util.concurrent.Callable': ['']}
   if success
     echomsg string(['java namespaces', dict == expected ? 'ok' : 'wrong'])

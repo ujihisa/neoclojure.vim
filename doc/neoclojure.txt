@@ -25,7 +25,7 @@ Java instance method completion:
 	(.g
 <
 
-Java static method completion:
+Java static method/enum completion:
 
 >
 	(String/f
