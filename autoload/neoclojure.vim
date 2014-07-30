@@ -194,7 +194,7 @@ function! neoclojure#test()
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'Material/DIR')
-  let expected = {'Material/DIRT': ['']}
+  let expected = {'Material/DIRT': ['org.bukkit.Material']}
   if success
     echomsg string(['java enum constants', dict == expected ? 'ok' : 'wrong'])
   else
