@@ -160,7 +160,7 @@ function! neoclojure#test()
 
   let [success, dict] = s:search(p, ns_dec, 'String/')
   if success
-    expect = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
+    let expect = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
     echomsg string(['static methods', dict == expect])
   else
     return 'failed at instance method search'
