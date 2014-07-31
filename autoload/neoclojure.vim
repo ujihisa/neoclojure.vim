@@ -151,13 +151,13 @@ function! neoclojure#complete(findstart, base)
       return []
     endif
 
-    let [success, dict] = s:search(p, ns_declare, a:base)
+    let [success, table] = s:search(p, ns_declare, a:base)
     if !success
       return []
     endif
 
     let candidates = []
-    for [kind, dict_t] in dict
+    for [kind, dict_t] in table
       for [k, v] in items(dict_t)
         let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
         call add(candidates, {
@@ -197,44 +197,44 @@ function! neoclojure#test()
 
 
   let before = reltime()
-  let [success, dict] = s:search(p, ns_dec, '.isF')
+  let [success, table] = s:search(p, ns_dec, '.isF')
   if success
     unlet! expected
     let expected = [['M', {'.isFlammable': ['org.bukkit.Material']}], ['S', {}], ['P', {}], ['E', {}]]
-    echo ['instance methods', dict == expected ? 'ok' : dict]
+    echo ['instance methods', table == expected ? 'ok' : table]
     echo ['instance methods took', reltimestr(reltime(before))]
   else
     return 'instance method search failed'
   endif
 
-  let [success, dict] = s:search(p, ns_dec, 'String/')
+  let [success, table] = s:search(p, ns_dec, 'String/')
   if success
     let expected = [['M', {}], ['S', {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}], ['P', {}], ['E', {}]]
-    echomsg string(['static methods', dict == expected ? 'ok' : dict])
+    echomsg string(['static methods', table == expected ? 'ok' : table])
   else
     return 'failed at instance method search'
   endif
 
-  let [success, dict] = s:search(p, ns_dec, 'java.lang.String/')
+  let [success, table] = s:search(p, ns_dec, 'java.lang.String/')
   if success
     let expected = [['M', {}], ['S', {'java.lang.String/format': [''], 'java.lang.String/copyValueOf': [''], 'java.lang.String/valueOf': ['']}], ['P', {}], ['E', {}]]
-    echomsg string(['static methods fqdn', dict == expected ? 'ok' : dict])
+    echomsg string(['static methods fqdn', table == expected ? 'ok' : table])
   else
     return 'failed at instance method search'
   endif
 
-  let [success, dict] = s:search(p, ns_dec, 'java.util.')
+  let [success, table] = s:search(p, ns_dec, 'java.util.')
   let expected = [['M', {}], ['S', {}], ['P', {'java.util.concurrent.Callable': ['']}], ['E', {}]]
   if success
-    echomsg string(['java namespaces', dict == expected ? 'ok' : dict])
+    echomsg string(['java namespaces', table == expected ? 'ok' : table])
   else
     return 'failed at java namespaces'
   endif
 
-  let [success, dict] = s:search(p, ns_dec, 'Thread$State/B')
+  let [success, table] = s:search(p, ns_dec, 'Thread$State/B')
   let expected = [['M', {}], ['S', {}], ['P', {}], ['E', {'Thread$State/BLOCKED': ['java.lang']}]]
   if success
-    echomsg string(['java enum constants', dict == expected ? 'ok' : dict])
+    echomsg string(['java enum constants', table == expected ? 'ok' : table])
   else
     return 'failed at java enum constants'
   endif
