@@ -39,15 +39,18 @@
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
     (let [[given-package given-class+] (split-at-last-dot phrase)
           java-instance-methods
-          (for [[k v] (ns-imports given-ns)
-                method (.getMethods v)
+          (for [[sym cls] (ns-imports given-ns)
+                method (.getMethods cls)
                 :let [mname (str "." (.getName method))]
-                :when (.startsWith mname phrase)]
-            [mname (.getName v)])
+                :when (and
+                        (not (-> method .getModifiers
+                               java.lang.reflect.Modifier/isStatic))
+                        (.startsWith mname phrase))]
+            [mname (.getName cls)])
           java-static-methods
-          (for [[k v] (ns-imports given-ns)
-                method (.getMethods v)
-                :let [mname (str k "/" (.getName method))]
+          (for [[sym cls] (ns-imports given-ns)
+                method (.getMethods cls)
+                :let [mname (str sym "/" (.getName method))]
                 :when (and
                         (-> method .getModifiers
                           java.lang.reflect.Modifier/isStatic)

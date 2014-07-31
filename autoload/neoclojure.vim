@@ -191,10 +191,10 @@ function! neoclojure#test()
 
 
   let before = reltime()
-  let [success, dict] = s:search(p, ns_dec, '.getO')
+  let [success, dict] = s:search(p, ns_dec, '.isF')
   if success
     unlet! expected
-    let expected = {'P': {}, 'S': {}, 'E': {}, 'M': {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}}
+    let expected = {'P': {}, 'S': {}, 'E': {}, 'M': {'.isFlammable': ['org.bukkit.Material']}}
     echo ['instance methods', dict == expected ? 'ok' : dict]
     echo ['instance methods took', reltimestr(reltime(before))]
   else
