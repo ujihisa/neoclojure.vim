@@ -34,50 +34,46 @@
         java-instance-methods
         (do
           (ns neoclojure)
-          (->> (for [[k v] (ns-imports given-ns)
-                     method (.getMethods v)
-                     :let [mname (str "." (.getName method))]
-                     :when (.startsWith mname phrase)]
-                 [mname (.getName v)])
-            set))
+          (for [[k v] (ns-imports given-ns)
+                method (.getMethods v)
+                :let [mname (str "." (.getName method))]
+                :when (.startsWith mname phrase)]
+            [mname (.getName v)]))
         java-static-methods
-        (->> (for [[k v] (ns-imports given-ns)
-                   method (.getMethods v)
-                   :let [mname (str k "/" (.getName method))]
-                   :when (and
-                           (-> method .getModifiers
-                             java.lang.reflect.Modifier/isStatic)
-                           (.startsWith mname phrase))]
-               [mname ""])
-          set)
+        (for [[k v] (ns-imports given-ns)
+              method (.getMethods v)
+              :let [mname (str k "/" (.getName method))]
+              :when (and
+                      (-> method .getModifiers
+                        java.lang.reflect.Modifier/isStatic)
+                      (.startsWith mname phrase))]
+          [mname ""])
         java-enum-constants
-        (-> (if given-package
-              (for [[k v] (ns-imports given-ns)
-                    :let [v-package (-> v .getPackage .getName)]
-                    enum (.getEnumConstants v)
-                    :let [class+enum (str k "/" enum)]
-                    :when (and
-                            (= v-package given-package)
-                            (.startsWith class+enum given-class+))]
-                [(str given-package "." class+enum) ""])
-              (for [[k v] (ns-imports given-ns)
-                    :let [v-package (-> v .getPackage .getName)]
-                    enum (.getEnumConstants v)
-                    :let [class+enum (str k "/" enum)]
-                    :when (.startsWith class+enum given-class+)]
-                [class+enum v-package]))
-          set)
+        (if given-package
+          (for [[k v] (ns-imports given-ns)
+                :let [v-package (-> v .getPackage .getName)]
+                enum (.getEnumConstants v)
+                :let [class+enum (str k "/" enum)]
+                :when (and
+                        (= v-package given-package)
+                        (.startsWith class+enum given-class+))]
+            [(str given-package "." class+enum) ""])
+          (for [[k v] (ns-imports given-ns)
+                :let [v-package (-> v .getPackage .getName)]
+                enum (.getEnumConstants v)
+                :let [class+enum (str k "/" enum)]
+                :when (.startsWith class+enum given-class+)]
+            [class+enum v-package]))
         java-namespaces
-        (->> (for [[_ v] (ns-imports given-ns)
-                   :let [fqdn-name (.getName v)]
-                   :when (.startsWith fqdn-name phrase)]
-               [fqdn-name ""])
-          set)]
+        (for [[_ v] (ns-imports given-ns)
+              :let [fqdn-name (.getName v)]
+              :when (.startsWith fqdn-name phrase)]
+          [fqdn-name ""])]
     (->
       {}
-      (assoc :M (to-hashmap java-instance-methods)
-             :S (to-hashmap java-static-methods)
-             :P (to-hashmap java-namespaces)
-             :E (to-hashmap java-enum-constants))
+      (assoc :M (to-hashmap (set java-instance-methods))
+             :S (to-hashmap (set java-static-methods))
+             :P (to-hashmap (set java-namespaces))
+             :E (to-hashmap (set java-enum-constants)))
       ->vimson)))
 #_(println (search "(ns aaa (:import [java.net URI]))" ".getN"))
