@@ -1,3 +1,5 @@
+let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
+
 let s:V = vital#of('neoclojure')
 let s:PM = s:V.import('ProcessManager')
 let s:L = s:V.import('Data.List')
@@ -6,7 +8,7 @@ let s:LX = s:V.import('Text.Lexer')
 call s:V.load('Process')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
-let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
+let s:_ps = get(s:, '_ps', []) " Don't initialize when you reload for development
 
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
@@ -81,6 +83,7 @@ function! s:give_me_p(fname)
           \.reserve_wait(['user=>'])
           \.reserve_writeln("(ns neoclojure)")
           \.reserve_wait(['user=>'])
+    call add(s:_ps, p)
   endif
 
   return p
@@ -168,6 +171,13 @@ function! neoclojure#complete(findstart, base)
     endif
     else
   endif
+endfunction
+
+function! neoclojure#killall()
+  for p in s:_ps
+    call p.shutdown()
+  endfor
+  let s:_ps = []
 endfunction
 
 function! neoclojure#test()
