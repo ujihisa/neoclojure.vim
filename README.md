@@ -44,6 +44,10 @@ augroup END
     * it'll be done asynchronously in the future.
 * No clojure function completions yet.
 
+## Links
+
+<http://twitter.com/neoclojure>
+
 ## License
 
 GPL version 3 or any later version
