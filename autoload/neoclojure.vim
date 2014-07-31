@@ -147,28 +147,28 @@ function! neoclojure#complete(findstart, base)
     return s:findstart(line_before)
   else
     let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
-    if !success
+    if !success | 
       return []
     endif
 
     let [success, dict] = s:search(p, ns_declare, a:base)
-    if success
-      let candidates = []
-      for t in ['M', 'S', 'E', 'P']
-        if !has_key(dict, t)
-          continue
-        endif
-        for [k, v] in items(dict[t])
-          let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
-          call add(candidates, {
-                \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
-                \ 'icase': 1, 'kind': t})
-        endfor
-      endfor
-      return s:L.sort_by(candidates, '-v:val["rank"]')
-    else
+    if !success
       return []
     endif
+
+    let candidates = []
+    for t in ['M', 'S', 'E', 'P']
+      if !has_key(dict, t)
+        continue
+      endif
+      for [k, v] in items(dict[t])
+        let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
+        call add(candidates, {
+              \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
+              \ 'icase': 1, 'kind': t})
+      endfor
+    endfor
+    return s:L.sort_by(candidates, '-v:val["rank"]')
   endif
 endfunction
 
