@@ -160,7 +160,7 @@ function! neoclojure#complete(findstart, base)
         endif
         for [k, v] in items(dict[t])
           let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
-         call add(candidates, {
+          call add(candidates, {
                 \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
                 \ 'icase': 1, 'kind': t})
         endfor
@@ -169,7 +169,6 @@ function! neoclojure#complete(findstart, base)
     else
       return []
     endif
-    else
   endif
 endfunction
 
@@ -258,6 +257,8 @@ endfunction
 
 " main -- executed only when this file is executed as like :source %
 if expand("%:p") == expand("<sfile>:p")
+  " call neoclojure#killall()
+
   echo '## neoclojure#test_findstart()'
   call neoclojure#test_findstart()
 
