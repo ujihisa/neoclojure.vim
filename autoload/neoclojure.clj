@@ -75,9 +75,9 @@
           set)]
     (->
       {}
-      (assoc :M (to-hashmap java-instance-methods))
-      (assoc :S (to-hashmap java-static-methods))
-      (assoc :P (to-hashmap java-namespaces))
-      (assoc :E (to-hashmap java-enum-constants))
+      (assoc :M (to-hashmap java-instance-methods)
+             :S (to-hashmap java-static-methods)
+             :P (to-hashmap java-namespaces)
+             :E (to-hashmap java-enum-constants))
       ->vimson)))
 #_(println (search "(ns aaa (:import [java.net URI]))" ".getN"))

@@ -235,6 +235,7 @@ function! neoclojure#test_findstart()
   echo s:findstart('(.') == 1
   echo s:findstart('aaa .g') == 4
   echo s:findstart('aaa .g s/') == 7
+  echo s:findstart('aaa g.c.d.ws/k') == 4
 endfunction
 
 " main -- executed only when this file is executed as like :source %
