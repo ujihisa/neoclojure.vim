@@ -27,13 +27,17 @@
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
 
-(defn search [ns-declare phrase]
+(defn- eval-in&give-me-ns [^String ns-declare]
   (eval (read-string ns-declare))
-  (let [given-ns *ns*
+  (let [probably-ns *ns*]
+    (ns neoclojure)
+    probably-ns))
+
+(defn search [ns-declare phrase]
+  (let [given-ns (eval-in&give-me-ns ns-declare)
         [given-package given-class+] (split-at-last-dot phrase)
         java-instance-methods
         (do
-          (ns neoclojure)
           (for [[k v] (ns-imports given-ns)
                 method (.getMethods v)
                 :let [mname (str "." (.getName method))]

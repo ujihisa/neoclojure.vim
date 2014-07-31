@@ -225,7 +225,7 @@ function! neoclojure#test()
     return 'failed at java enum constants'
   endif
 
-  return 'success'
+  return 'done'
 endfunction
 
 function! neoclojure#test_findstart()
