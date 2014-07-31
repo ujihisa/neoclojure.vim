@@ -141,11 +141,16 @@ function! neoclojure#complete(findstart, base)
     let [success, dict] = s:search(p, ns_declare, a:base)
     if success
       let candidates = []
-      for [k, v] in items(dict)
-        let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
-        call add(candidates, {
-              \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
-              \ 'icase': 1, 'kind': 'M'})
+      for t in ['M', 'S', 'E', 'P']
+        if !has_key(dict, t)
+          continue
+        endif
+        for [k, v] in items(dict[t])
+          let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
+         call add(candidates, {
+                \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
+                \ 'icase': 1, 'kind': t})
+        endfor
       endfor
       return s:L.sort_by(candidates, '-v:val["rank"]')
     else
