@@ -88,10 +88,10 @@
                 :when (.startsWith fqdn-name phrase)]
             [fqdn-name ""])]
       (->
-        {}
-        (assoc :M (to-hashmap (set java-instance-methods))
-               :S (to-hashmap (set java-static-methods))
-               :P (to-hashmap (set java-namespaces))
-               :E (to-hashmap (set java-enum-constants)))
+        []
+        (conj [:M (to-hashmap (set java-instance-methods))]
+              [:S (to-hashmap (set java-static-methods))]
+              [:P (to-hashmap (set java-namespaces))]
+              [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
 #_(println (search "(ns aaa (:import [java.net URI]))" ".getN"))

@@ -157,7 +157,7 @@ function! neoclojure#complete(findstart, base)
     endif
 
     let candidates = []
-    for [kind, dict_t] in items(dict)
+    for [kind, dict_t] in dict
       for [k, v] in items(dict_t)
         let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
         call add(candidates, {
@@ -200,7 +200,7 @@ function! neoclojure#test()
   let [success, dict] = s:search(p, ns_dec, '.isF')
   if success
     unlet! expected
-    let expected = {'P': {}, 'S': {}, 'E': {}, 'M': {'.isFlammable': ['org.bukkit.Material']}}
+    let expected = [['M', {'.isFlammable': ['org.bukkit.Material']}], ['S', {}], ['P', {}], ['E', {}]]
     echo ['instance methods', dict == expected ? 'ok' : dict]
     echo ['instance methods took', reltimestr(reltime(before))]
   else
@@ -209,7 +209,7 @@ function! neoclojure#test()
 
   let [success, dict] = s:search(p, ns_dec, 'String/')
   if success
-    let expected = {'P': {}, 'S': {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}, 'E': {}, 'M': {}}
+    let expected = [['M', {}], ['S', {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}], ['P', {}], ['E', {}]]
     echomsg string(['static methods', dict == expected ? 'ok' : dict])
   else
     return 'failed at instance method search'
@@ -217,14 +217,14 @@ function! neoclojure#test()
 
   let [success, dict] = s:search(p, ns_dec, 'java.lang.String/')
   if success
-    let expected = {'P': {}, 'S': {'java.lang.String/format': [''], 'java.lang.String/copyValueOf': [''], 'java.lang.String/valueOf': ['']}, 'E': {}, 'M': {}}
+    let expected = [['M', {}], ['S', {'java.lang.String/format': [''], 'java.lang.String/copyValueOf': [''], 'java.lang.String/valueOf': ['']}], ['P', {}], ['E', {}]]
     echomsg string(['static methods fqdn', dict == expected ? 'ok' : dict])
   else
     return 'failed at instance method search'
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'java.util.')
-  let expected = {'P': {'java.util.concurrent.Callable': ['']}, 'S': {}, 'E': {}, 'M': {}}
+  let expected = [['M', {}], ['S', {}], ['P', {'java.util.concurrent.Callable': ['']}], ['E', {}]]
   if success
     echomsg string(['java namespaces', dict == expected ? 'ok' : dict])
   else
@@ -232,7 +232,7 @@ function! neoclojure#test()
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'Thread$State/B')
-  let expected = {'P': {}, 'S': {}, 'E': {'Thread$State/BLOCKED': ['java.lang']}, 'M': {}}
+  let expected = [['M', {}], ['S', {}], ['P', {}], ['E', {'Thread$State/BLOCKED': ['java.lang']}]]
   if success
     echomsg string(['java enum constants', dict == expected ? 'ok' : dict])
   else
