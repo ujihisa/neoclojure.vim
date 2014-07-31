@@ -39,7 +39,7 @@
                        method (.getMethods v)
                        :let [mname (str "." (.getName method))]
                        :when (.startsWith mname phrase)]
-                   [mname (.getName v) "M"])
+                   [mname (.getName v)])
               set))
           java-static-methods
           (->> (for [[k v] (ns-imports given-ns)
@@ -49,7 +49,7 @@
                              (-> method .getModifiers
                                java.lang.reflect.Modifier/isStatic)
                              (.startsWith mname phrase))]
-                 [mname "" "S"])
+                 [mname ""])
             set)
           java-enum-constants
           (-> (if given-package
@@ -60,19 +60,19 @@
                       :when (and
                               (= v-package given-package)
                               (.startsWith class+enum given-class+))]
-                  [(str given-package "." class+enum) "" "E"])
+                  [(str given-package "." class+enum) ""])
                 (for [[k v] (ns-imports given-ns)
                       :let [v-package (-> v .getPackage .getName)]
                       enum (.getEnumConstants v)
                       :let [class+enum (str k "/" enum)]
                       :when (.startsWith class+enum given-class+)]
-                  [class+enum v-package "E"]))
+                  [class+enum v-package]))
             set)
           java-namespaces
           (->> (for [[_ v] (ns-imports given-ns)
                      :let [fqdn-name (.getName v)]
                      :when (.startsWith fqdn-name phrase)]
-                 [fqdn-name "" "P"])
+                 [fqdn-name ""])
             set)]
       (->
         {}
