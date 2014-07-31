@@ -11,15 +11,16 @@
   (defn ^String ->vimson [x]
     (cond
       (vector? x)
-      (str "["
-           (clojure.string/join ", " (map ->vimson x))
-           "]")
+      (str "[" (s/join ", " (map ->vimson x)) "]")
+
       (keyword? x)
       (pr-str (name x))
+
       (map? x)
       (str "{"
-           (clojure.string/join ", " (map #(str (->vimson (first %)) ":" (->vimson (second %))) x))
+           (s/join ", " (map #(str (->vimson (first %)) ":" (->vimson (second %))) x))
            "}")
+
       :else (pr-str x)))
 
   (defn to-hashmap [darr]
