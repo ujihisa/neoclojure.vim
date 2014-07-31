@@ -209,6 +209,14 @@ function! neoclojure#test()
     return 'failed at instance method search'
   endif
 
+  let [success, dict] = s:search(p, ns_dec, 'java.lang.String/')
+  if success
+    let expected = {'P': {}, 'S': {'java.lang.String/format': [''], 'java.lang.String/copyValueOf': [''], 'java.lang.String/valueOf': ['']}, 'E': {}, 'M': {}}
+    echomsg string(['static methods fqdn', dict == expected ? 'ok' : dict])
+  else
+    return 'failed at instance method search'
+  endif
+
   let [success, dict] = s:search(p, ns_dec, 'java.util.')
   let expected = {'P': {'java.util.concurrent.Callable': ['']}, 'S': {}, 'E': {}, 'M': {}}
   if success

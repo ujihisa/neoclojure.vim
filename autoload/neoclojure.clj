@@ -48,14 +48,24 @@
                         (.startsWith mname phrase))]
             [mname (.getName cls)])
           java-static-methods
-          (for [[sym cls] (ns-imports given-ns)
-                method (.getMethods cls)
-                :let [mname (str sym "/" (.getName method))]
-                :when (and
-                        (-> method .getModifiers
-                          java.lang.reflect.Modifier/isStatic)
-                        (.startsWith mname phrase))]
-            [mname ""])
+          (if given-package
+            (for [[sym cls] (ns-imports given-ns)
+                  :let [v-package (-> cls .getPackage .getName)]
+                  method (.getMethods cls)
+                  :let [mname (str (.getName cls) "/" (.getName method))]
+                  :when (and
+                          (-> method .getModifiers
+                            java.lang.reflect.Modifier/isStatic)
+                          (.startsWith mname phrase))]
+              [mname ""])
+            (for [[sym cls] (ns-imports given-ns)
+                  method (.getMethods cls)
+                  :let [mname (str sym "/" (.getName method))]
+                  :when (and
+                          (-> method .getModifiers
+                            java.lang.reflect.Modifier/isStatic)
+                          (.startsWith mname phrase))]
+              [mname ""]))
           java-enum-constants
           (if given-package
             (for [[k v] (ns-imports given-ns)
