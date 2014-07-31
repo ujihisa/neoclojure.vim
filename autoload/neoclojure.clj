@@ -1,5 +1,13 @@
 (do
-  (ns neoclojure)
+  (ns neoclojure
+    (:require [clojure.string :as s]))
+
+  (defn split-at-last-dot [st]
+    (let [[left right] (s/split st #"\.(?=[^\.]*$)")]
+      (if right
+        [left right]
+        [nil left])))
+
   (defn ^String ->vimlist [x]
     (cond
       (vector? x)
@@ -11,10 +19,12 @@
            (clojure.string/join ", " (map #(str (->vimlist (first %)) ":" (->vimlist (second %))) x))
            "}")
       :else (pr-str x)))
+
   (defn to-hashmap [darr]
     (reduce (fn [acc [k v]]
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
+
   (defn search [ns-declare phrase]
     (eval (read-string ns-declare))
     (let [the-ns *ns*
@@ -38,16 +48,24 @@
                  [mname ""])
             set)
           java-enum-constants
-          (->> (for [[k v] (ns-imports the-ns)
-                     enum (.getEnumConstants v)
-                     :let [ename (str k "/" (.name enum))]
-                     :when (and
-                             true
-                             #_(-> method .getModifiers
-                               java.lang.reflect.Modifier/isStatic)
-                             (.startsWith ename phrase))]
-                 [ename (.getName v)])
-            set)
+          (let [[given-package given-class+] (split-at-last-dot phrase)]
+            (if given-package
+              (->> (for [[k v] (ns-imports the-ns)
+                         :let [v-package (-> v .getPackage .getName)]
+                         enum (.getEnumConstants v)
+                         :let [class+enum (str k "/" enum)]
+                         :when (and
+                                 (= v-package given-package)
+                                 (.startsWith class+enum given-class+))]
+                     [(str given-package "." class+enum) ""])
+                set)
+              (->> (for [[k v] (ns-imports the-ns)
+                         :let [v-package (-> v .getPackage .getName)]
+                         enum (.getEnumConstants v)
+                         :let [class+enum (str k "/" enum)]
+                         :when (.startsWith class+enum given-class+)]
+                     [class+enum v-package])
+                set)))
           java-namespaces
           (->> (for [[_ v] (ns-imports the-ns)
                      :let [fqdn-name (.getName v)]
