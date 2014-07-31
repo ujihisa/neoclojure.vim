@@ -3,7 +3,7 @@ let s:PM = s:V.import('ProcessManager')
 let s:L = s:V.import('Data.List')
 let s:S = s:V.import('Data.String')
 let s:LX = s:V.import('Text.Lexer')
-let s:_SFILEDIR = expand('<sfile>:p:h')
+let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 
 function! s:search(p, ns_declare, partial_methodname)
