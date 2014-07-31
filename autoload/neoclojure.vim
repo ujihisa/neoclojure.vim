@@ -2,6 +2,7 @@ let s:V = vital#of('neoclojure')
 let s:PM = s:V.import('ProcessManager')
 let s:L = s:V.import('Data.List')
 let s:S = s:V.import('Data.String')
+let s:LX = s:V.import('Text.Lexer')
 let s:_SFILEDIR = expand('<sfile>:p:h')
 
 
@@ -102,23 +103,27 @@ function! neoclojure#complete_timed(findstart, base)
 endfunction
 
 function! s:findstart(line_before)
-  let java_namespace = match(a:line_before, '\(\w\+/\)*\(\w\+\.\)\?\w\+$')
-  if java_namespace != -1
-    return java_namespace
+  if a:line_before ==# ''
+    return 0 " shows everything
   endif
 
-  let instance_method = match(a:line_before, '.*\zs\.[^\s\(\)\[\]\{\}]*$')
-  if instance_method != -1
-    return instance_method
-  endif
+  let lx = s:LX.lexer([
+        \ ['id', '[[:alnum:]\$-]\+'],
+        \ ['dot', '\.'],
+        \ ['slash', '/'],
+        \ ['spaces', '\s\+'],
+        \ ['else', '.']])
+  let tokens = reverse(lx.exec(a:line_before))
 
-  let static_method_enum = match(a:line_before, '\w\+/.*$')
-  if static_method_enum != -1
-    return static_method_enum
+  if tokens[0].label == 'spaces' || tokens[0].label == 'else'
+    return len(a:line_before)
+  " elseif tokens[0].label == 'slash'
+  "   let tokens = s:L.take_while('index(["id", "dot"], v:val.label) >= 0', tokens[1 :])
+  "   return len(tokens) ? tokens[-1].col : -1
+  else
+    let tokens = s:L.take_while('v:val.label != "spaces" && v:val.label != "else"', tokens)
+    return tokens[-1].col
   endif
-
-  " verbose on purpose
-  return -1
 endfunction
 
 function! neoclojure#complete(findstart, base)
@@ -205,10 +210,17 @@ function! neoclojure#test()
 endfunction
 
 function! neoclojure#test_findstart()
-  echo s:findstart('') == -1
+  echo s:findstart('') == 0
+  echo s:findstart(' ') == 1
   echo s:findstart('aaa b') == 4
   " echo s:findstart('aaa b.')
+  echo s:findstart('aaa .g') == 4
+  echo s:findstart('aaa .g s/') == 7
 endfunction
-" call neoclojure#test_findstart()
 
-" echo neoclojure#test()
+" main -- executed only when this file is executed as like :source %
+if expand("%:p") == expand("<sfile>:p")
+  call neoclojure#test_findstart()
+
+  " echo neoclojure#test()
+endif
