@@ -90,10 +90,10 @@ function! s:give_me_p(fname)
 endfunction
 
 function! neoclojure#ns_declare(p, lines)
-  call a:p.reserve_writeln(
-        \ printf(
+  let to_write = printf(
         \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr "(ns dummy)"))',
-        \   escape(join(a:lines), '"')))
+        \   escape(join(a:lines, "\n"), '"\'))
+  call a:p.reserve_writeln(to_write)
         \.reserve_read(['user=>'])
   while 1 " blocking!
     let result = a:p.go_bulk()
@@ -147,7 +147,7 @@ function! neoclojure#complete(findstart, base)
     return s:findstart(line_before)
   else
     let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
-    if !success | 
+    if !success
       return []
     endif
 
@@ -157,15 +157,12 @@ function! neoclojure#complete(findstart, base)
     endif
 
     let candidates = []
-    for t in ['M', 'S', 'E', 'P']
-      if !has_key(dict, t)
-        continue
-      endif
-      for [k, v] in items(dict[t])
+    for [kind, dict_t] in items(dict)
+      for [k, v] in items(dict_t)
         let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
         call add(candidates, {
               \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
-              \ 'icase': 1, 'kind': t})
+              \ 'icase': 1, 'kind': kind})
       endfor
     endfor
     return s:L.sort_by(candidates, '-v:val["rank"]')
