@@ -239,7 +239,9 @@ endfunction
 
 " main -- executed only when this file is executed as like :source %
 if expand("%:p") == expand("<sfile>:p")
+  echo '## neoclojure#test_findstart()'
   call neoclojure#test_findstart()
 
-  " echo neoclojure#test()
+  echo '## neoclojure#test()'
+  echo neoclojure#test()
 endif
