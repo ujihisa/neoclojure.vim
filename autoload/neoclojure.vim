@@ -69,7 +69,11 @@ function! s:give_me_p(fname)
     call p.reserve_wait(['.*=>'])
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
-          \.reserve_writeln(join(readfile(printf('%s/neoclojure.clj', s:_SFILEDIR)), ' '))
+          \.reserve_writeln(printf(
+          \   '(load-file "%s/neoclojure.clj")',
+          \   escape(s:_SFILEDIR, '"')))
+          \.reserve_wait(['user=>'])
+          \.reserve_writeln("(ns neoclojure)")
           \.reserve_wait(['user=>'])
   endif
 
@@ -172,7 +176,7 @@ function! neoclojure#test()
     return neoclojure#test()
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
-  echo ['ns declare', ns_dec == expected ? 'ok' : 'wrong']
+  echo ['ns declare', ns_dec == expected ? 'ok' : ns_dec]
   echo ['ns declare took', reltimestr(reltime(before))]
 
 

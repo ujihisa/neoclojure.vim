@@ -1,4 +1,3 @@
-(do
   (ns neoclojure
     (:require [clojure.string :as s]))
 
@@ -81,4 +80,4 @@
           (assoc :P (to-hashmap java-namespaces))
           (assoc :E (to-hashmap java-enum-constants))
         ->vimson)))
-  #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
+  #_(println (search "(ns aaa (:import [java.net URI]))" ".getN"))
