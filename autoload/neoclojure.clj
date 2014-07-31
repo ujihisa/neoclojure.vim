@@ -73,7 +73,8 @@
             set)]
       (->
         {}
-          (assoc "M" (to-hashmap (concat java-instance-methods java-static-methods)))
+          (assoc "M" (to-hashmap java-instance-methods))
+          (assoc "S" (to-hashmap java-static-methods))
           (assoc "P" (to-hashmap java-namespaces))
           (assoc "E" (to-hashmap java-enum-constants))
         ->vimson)))
