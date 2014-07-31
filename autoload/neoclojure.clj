@@ -14,6 +14,10 @@
       (str "["
            (clojure.string/join ", " (map ->vimson x))
            "]")
+      (keyword? x)
+      (str "\""
+           (name x)
+           "\"")
       (map? x)
       (str "{"
            (clojure.string/join ", " (map #(str (->vimson (first %)) ":" (->vimson (second %))) x))
@@ -73,9 +77,9 @@
             set)]
       (->
         {}
-          (assoc "M" (to-hashmap java-instance-methods))
-          (assoc "S" (to-hashmap java-static-methods))
-          (assoc "P" (to-hashmap java-namespaces))
-          (assoc "E" (to-hashmap java-enum-constants))
+          (assoc :M (to-hashmap java-instance-methods))
+          (assoc :S (to-hashmap java-static-methods))
+          (assoc :P (to-hashmap java-namespaces))
+          (assoc :E (to-hashmap java-enum-constants))
         ->vimson)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
