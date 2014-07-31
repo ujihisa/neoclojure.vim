@@ -184,7 +184,7 @@ function! neoclojure#test()
   let [success, dict] = s:search(p, ns_dec, '.getO')
   if success
     unlet! expected
-    let expected = {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}
+    let expected = {'P': {}, 'S': {}, 'E': {}, 'M': {'.getOnlinePlayers': ['org.bukkit.Bukkit'], '.getOfflinePlayers': ['org.bukkit.Bukkit'], '.getOutputStream': ['java.lang.Process'], '.getOperators': ['org.bukkit.Bukkit'], '.getOfflinePlayer': ['org.bukkit.Bukkit'], '.getOnlineMode': ['org.bukkit.Bukkit']}}
     echo ['instance methods', dict == expected ? 'ok' : dict]
     echo ['instance methods took', reltimestr(reltime(before))]
   else
@@ -193,14 +193,14 @@ function! neoclojure#test()
 
   let [success, dict] = s:search(p, ns_dec, 'String/')
   if success
-    let expected = {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}
+    let expected = {'P': {}, 'S': {'String/valueOf': [''], 'String/format': [''], 'String/copyValueOf': ['']}, 'E': {}, 'M': {}}
     echomsg string(['static methods', dict == expected ? 'ok' : dict])
   else
     return 'failed at instance method search'
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'java.util.')
-  let expected = {'java.util.concurrent.Callable': ['']}
+  let expected = {'P': {'java.util.concurrent.Callable': ['']}, 'S': {}, 'E': {}, 'M': {}}
   if success
     echomsg string(['java namespaces', dict == expected ? 'ok' : dict])
   else
@@ -208,9 +208,9 @@ function! neoclojure#test()
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'Thread$State/B')
-  let expected = {'Thread$State/BLOCKED': ['java.lang']}
+  let expected = {'P': {}, 'S': {}, 'E': {'Thread$State/BLOCKED': ['java.lang']}, 'M': {}}
   if success
-    echomsg string(['java enum constants', dict == expected ? 'ok' : string(dict)])
+    echomsg string(['java enum constants', dict == expected ? 'ok' : dict])
   else
     return 'failed at java enum constants'
   endif
