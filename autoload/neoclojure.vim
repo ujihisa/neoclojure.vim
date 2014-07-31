@@ -175,8 +175,8 @@ function! neoclojure#test()
     echo 'Process is dead. Auto-restarting...'
     return neoclojure#test()
   endif
-  let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))\n\n"
-  echo ['ns declare', ns_dec == expected ? 'ok' : ns_dec]
+  let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))"
+  echo ['ns declare', substitute(ns_dec, '\(\r\?\n\)*$', '', '') == expected ? 'ok' : ns_dec]
   echo ['ns declare took', reltimestr(reltime(before))]
 
 
