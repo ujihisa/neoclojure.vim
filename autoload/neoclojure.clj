@@ -6,7 +6,7 @@
     (let [[left right] (s/split st #"\.(?=[^\.]*$)")]
       (if right
         [left right]
-        [nil left])))
+        [nil (str left)])))
 
   (defn ^String ->vimson [x]
     (cond
