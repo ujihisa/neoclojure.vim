@@ -8,15 +8,15 @@
         [left right]
         [nil left])))
 
-  (defn ^String ->vimlist [x]
+  (defn ^String ->vimson [x]
     (cond
       (vector? x)
       (str "["
-           (clojure.string/join ", " (map ->vimlist x))
+           (clojure.string/join ", " (map ->vimson x))
            "]")
       (map? x)
       (str "{"
-           (clojure.string/join ", " (map #(str (->vimlist (first %)) ":" (->vimlist (second %))) x))
+           (clojure.string/join ", " (map #(str (->vimson (first %)) ":" (->vimson (second %))) x))
            "}")
       :else (pr-str x)))
 
@@ -76,5 +76,5 @@
                   java-static-methods
                   java-enum-constants)
         to-hashmap
-        ->vimlist)))
+        ->vimson)))
   #_(println (search "(ns aaa (:import [java.net URI]))" ".getN")))
