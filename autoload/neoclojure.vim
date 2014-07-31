@@ -218,7 +218,7 @@ function! neoclojure#test_findstart()
   echo s:findstart('') == 0
   echo s:findstart(' ') == 1
   echo s:findstart('aaa b') == 4
-  " echo s:findstart('aaa b.')
+  echo s:findstart('(.') == 1
   echo s:findstart('aaa .g') == 4
   echo s:findstart('aaa .g s/') == 7
 endfunction
