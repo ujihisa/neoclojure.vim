@@ -15,9 +15,7 @@
            (clojure.string/join ", " (map ->vimson x))
            "]")
       (keyword? x)
-      (str "\""
-           (name x)
-           "\"")
+      (pr-str (name x))
       (map? x)
       (str "{"
            (clojure.string/join ", " (map #(str (->vimson (first %)) ":" (->vimson (second %))) x))
