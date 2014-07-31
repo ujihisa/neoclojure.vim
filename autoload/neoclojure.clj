@@ -27,18 +27,19 @@
 
   (defn search [ns-declare phrase]
     (eval (read-string ns-declare))
-    (let [the-ns *ns*
+    (let [given-ns *ns*
+          [given-package given-class+] (split-at-last-dot phrase)
           java-instance-methods
           (do
             (ns neoclojure)
-            (->> (for [[k v] (ns-imports the-ns)
+            (->> (for [[k v] (ns-imports given-ns)
                        method (.getMethods v)
                        :let [mname (str "." (.getName method))]
                        :when (.startsWith mname phrase)]
                    [mname (.getName v)])
               set))
           java-static-methods
-          (->> (for [[k v] (ns-imports the-ns)
+          (->> (for [[k v] (ns-imports given-ns)
                      method (.getMethods v)
                      :let [mname (str k "/" (.getName method))]
                      :when (and
@@ -48,26 +49,24 @@
                  [mname ""])
             set)
           java-enum-constants
-          (let [[given-package given-class+] (split-at-last-dot phrase)]
-            (if given-package
-              (->> (for [[k v] (ns-imports the-ns)
-                         :let [v-package (-> v .getPackage .getName)]
-                         enum (.getEnumConstants v)
-                         :let [class+enum (str k "/" enum)]
-                         :when (and
-                                 (= v-package given-package)
-                                 (.startsWith class+enum given-class+))]
-                     [(str given-package "." class+enum) ""])
-                set)
-              (->> (for [[k v] (ns-imports the-ns)
-                         :let [v-package (-> v .getPackage .getName)]
-                         enum (.getEnumConstants v)
-                         :let [class+enum (str k "/" enum)]
-                         :when (.startsWith class+enum given-class+)]
-                     [class+enum v-package])
-                set)))
+          (-> (if given-package
+                (for [[k v] (ns-imports given-ns)
+                      :let [v-package (-> v .getPackage .getName)]
+                      enum (.getEnumConstants v)
+                      :let [class+enum (str k "/" enum)]
+                      :when (and
+                              (= v-package given-package)
+                              (.startsWith class+enum given-class+))]
+                  [(str given-package "." class+enum) ""])
+                (for [[k v] (ns-imports given-ns)
+                      :let [v-package (-> v .getPackage .getName)]
+                      enum (.getEnumConstants v)
+                      :let [class+enum (str k "/" enum)]
+                      :when (.startsWith class+enum given-class+)]
+                  [class+enum v-package]))
+            set)
           java-namespaces
-          (->> (for [[_ v] (ns-imports the-ns)
+          (->> (for [[_ v] (ns-imports given-ns)
                      :let [fqdn-name (.getName v)]
                      :when (.startsWith fqdn-name phrase)]
                  [fqdn-name ""])

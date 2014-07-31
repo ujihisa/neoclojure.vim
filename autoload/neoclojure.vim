@@ -199,7 +199,7 @@ function! neoclojure#test()
   endif
 
   let [success, dict] = s:search(p, ns_dec, 'Thread$State/B')
-  let expected = {'Thread$State/BLOCKED': ['java.lang.Thread$State']}
+  let expected = {'Thread$State/BLOCKED': ['java.lang']}
   if success
     echomsg string(['java enum constants', dict == expected ? 'ok' : string(dict)])
   else
