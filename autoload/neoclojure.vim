@@ -62,7 +62,7 @@ function! s:give_me_p(fname)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
 
   let cwd = getcwd()
-  execute 'lcd' dirname
+  silent execute 'lcd' dirname
   if success
     let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
   else
