@@ -3,8 +3,10 @@ let s:PM = s:V.import('ProcessManager')
 let s:L = s:V.import('Data.List')
 let s:S = s:V.import('Data.String')
 let s:LX = s:V.import('Text.Lexer')
+call s:V.load('Process')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
+let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
 
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
@@ -41,6 +43,10 @@ function! s:is_root_directory(path)
   return (has('win32') || has('win64')) && a:path =~ '^[a-zA-Z]:[/\\]$'
 endfunction
 
+function! neoclojure#is_available()
+  return s:V.Process.has_vimproc() && executable(g:neoclojure_lein)
+endfunction
+
 function! neoclojure#project_root_path(fname)
   let dirname = fnamemodify(a:fname, ':p:h')
   while !s:is_root_directory(dirname)
@@ -58,9 +64,9 @@ function! s:give_me_p(fname)
   let cwd = getcwd()
   execute 'lcd' dirname
   if success
-    let p = s:PM.of('neoclojure-' . dirname, 'lein trampoline run -m clojure.main/repl')
+    let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
   else
-    let p = s:PM.of('neoclojure-nonproject' , 'lein run -m clojure.main/repl')
+    let p = s:PM.of('neoclojure-nonproject' , printf('%s run -m clojure.main/repl', g:neoclojure_lein))
   endif
 
   execute 'lcd' cwd
@@ -165,6 +171,10 @@ function! neoclojure#complete(findstart, base)
 endfunction
 
 function! neoclojure#test()
+  if !neoclojure#is_available()
+    return 'neoclojure#is_available() is false'
+  endif
+
   let testfile = printf('%s/../test/src/cloft2/fast_dash.clj', s:_SFILEDIR)
 
   let p = s:give_me_p(testfile)
