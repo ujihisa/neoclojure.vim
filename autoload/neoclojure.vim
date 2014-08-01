@@ -100,7 +100,7 @@ function! neoclojure#ns_declare(p, lines)
     if result.done && len(result.err)
       return [1, '(ns dummy)', result.err]
     elseif result.done
-      return [1, result.out, '']
+      return [1, result.out, result.err]
     elseif result.fail
       call a:p.shutdown()
       return [0, 'Process is dead', '']
@@ -142,11 +142,19 @@ endfunction
 function! neoclojure#complete(findstart, base)
   let p = neoclojure#_give_me_p(expand('%'))
 
+  " dirty hack; it should be done in config or in neocomplete
+  if exists('*neocomplete#initialize') && synIDattr(synIDtrans(synID(line("."), col("."), 1)), 'name') ==# "String"
+    return -1
+  endif
+
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
     return s:findstart(line_before)
   else
     let [success, ns_declare, warn] = neoclojure#ns_declare(p, getline(1, '$'))
+    if len(warn)
+      echomsg warn
+    endif
     if !success
       return []
     endif

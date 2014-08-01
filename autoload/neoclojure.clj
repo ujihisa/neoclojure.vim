@@ -1,5 +1,6 @@
 (ns neoclojure
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as s]
+            [clojure.repl]))
 
 (defn split-at-last-dot [st]
   (let [[left right] (s/split st #"\.(?=[^\.]*$)")]
@@ -38,10 +39,13 @@
     (when (= 'ns (first parsed))
       (try
         (eval parsed)
-        (catch Exception e e))
-      (let [probably-ns *ns*]
-        (ns neoclojure)
-        probably-ns))))
+        (let [probably-ns *ns*]
+          (ns neoclojure)
+          probably-ns)
+        (catch Exception e
+          (if (.startsWith (.getMessage e) "EOF while reading")
+            nil
+            (clojure.repl/pst)))))))
 
 (defn complete-candidates [ns-declare phrase]
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
