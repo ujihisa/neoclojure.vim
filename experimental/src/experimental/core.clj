@@ -1,9 +1,11 @@
 (ns experimental.core
-  (:use [clojure.pprint :only [pprint]])
+  (:use [clojure.pprint :only [pprint]]
+        [cemerick.pomegranate :only (add-dependencies)])
   (:require #_[clojail.core]
             [clojure.repl]
             [clojure.tools.reader :as r]
-            [clojure.tools.reader.reader-types :as rt]))
+            [clojure.tools.reader.reader-types :as rt]
+            ))
 
 #_ (defn -main []
   (try (let [sandbox (clojail.core/sandbox #{}) ]
@@ -22,10 +24,13 @@
 (defn parse-clojure [code]
   (try
     (binding [r/*read-eval* false]
-      (->> (str "[" code "]")
+      (->> code
         rt/indexing-push-back-reader
         r/read))
     (catch clojure.lang.ExceptionInfo e e)))
+
+(defn parse-clojure-all [code]
+  (parse-clojure (str "[" code "]")))
 
 (defn -main []
   #_ (pprint (parse-clojure (slurp "src/experimental/core.clj")))
@@ -53,10 +58,23 @@
               defn x
               nil))]
       (->> file
-        parse-clojure
+        parse-clojure-all
         (filter list?)
         (mapv only-declare)
         (filter identity)
         (map (juxt identity meta))
         clojure.pprint/pprint))
-    (catch Exception e (clojure.repl/pst e))))
+    (catch Exception e (clojure.repl/pst e)))
+
+  (let [[_ _ _ & x] (parse-clojure (slurp "/home/ujihisa/git/cloft2/client/project.clj"))
+        hashmap (apply hash-map x)
+        dependencies (get hashmap :dependencies [])
+        repositories (get hashmap :repositories {})]
+    (prn "------------------------------------------")
+    (prn dependencies repositories)
+    (add-dependencies
+      :coordinates dependencies
+      :repositories (merge cemerick.pomegranate.aether/maven-central
+                           {"clojars" "http://clojars.org/repo"}
+                           repositories))
+    (prn (eval (parse-clojure "org.bukkit.Bukkit")))))
