@@ -13,7 +13,7 @@ let s:_ps = get(s:, '_ps', []) " Don't initialize when you reload for developmen
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
-        \ '(println (neoclojure/search "%s" "%s"))',
+        \ '(println (neoclojure/complete-candidates "%s" "%s"))',
         \ escape(a:ns_declare, '"\'),
         \ escape(a:partial_methodname, '"\')))
         \.reserve_read(['user=>'])

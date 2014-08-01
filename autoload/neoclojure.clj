@@ -43,7 +43,7 @@
         (ns neoclojure)
         probably-ns))))
 
-(defn search [ns-declare phrase]
+(defn complete-candidates [ns-declare phrase]
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
     (let [[given-package given-class+] (split-at-last-dot phrase)
           java-instance-methods
@@ -105,4 +105,4 @@
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
-  (println (search "(ns aaa (:import [java.net URI]))" x)))
+  (println (complete-candidates "(ns aaa (:import [java.net URI]))" x)))
