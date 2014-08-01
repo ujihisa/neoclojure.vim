@@ -97,5 +97,6 @@
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
 
+; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
   (println (search "(ns aaa (:import [java.net URI]))" x)))
