@@ -33,7 +33,9 @@ augroup END
 If you have quickrun.vim, include this as well.
 
 ```vim
-let g:quickrun_config.clojure = {'runner': 'neoclojure', 'command': 'dummy'}
+let g:quickrun_config.clojure = {
+      \ 'runner': 'neoclojure', 'command': 'dummy',
+      \ 'tempfile'  : '%{tempname()}.clj'}
 ```
 
 ## Development progress / todo
