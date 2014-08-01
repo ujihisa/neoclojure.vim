@@ -14,8 +14,8 @@ function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
         \ '(println (search "%s" "%s"))',
-        \ escape(a:ns_declare, '"'),
-        \ escape(a:partial_methodname, '"')))
+        \ escape(a:ns_declare, '"\'),
+        \ escape(a:partial_methodname, '"\')))
         \.reserve_read(['user=>'])
 
   while 1 " yes it is blocking for now
@@ -91,7 +91,7 @@ endfunction
 
 function! neoclojure#ns_declare(p, lines)
   let to_write = printf(
-        \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr "(ns dummy)"))',
+        \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr ''(ns dummy)))',
         \   escape(join(a:lines, "\n"), '"\'))
   call a:p.reserve_writeln(to_write)
         \.reserve_read(['user=>'])
@@ -150,6 +150,7 @@ function! neoclojure#complete(findstart, base)
     if !success
       return []
     endif
+    echomsg string([ns_declare])
 
     let [success, table] = s:search(p, ns_declare, a:base)
     if !success
