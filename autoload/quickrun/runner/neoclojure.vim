@@ -21,7 +21,7 @@ function! s:runner.run(commands, input, session)
   "   return
   " endif
 
-  let message = a:session.build_command('(load-file "%S")')
+  let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
   call p.reserve_writeln(message)
         \.reserve_read(['user=>'])
 
@@ -53,10 +53,10 @@ function! s:receive(key, fname)
     call session.finish()
     return session.run()
   elseif has_key(result, 'part')
-    call session.output(result.part.out . (result.part.err ==# '' ? '' : printf('!!!%s!!!', err)))
+    call session.output(result.part.out . (result.part.err ==# '' ? '' : printf('!!!%s!!!', result.part.err)))
     return 0
   elseif result.done
-    call session.output(result.out . (result.err ==# '' ? '' : printf('!!!%s!!!', err)))
+    call session.output(result.out . (result.err ==# '' ? '' : printf('!!!%s!!!', result.err)))
     autocmd! plugin-quickrun-neoclojure
     call session.finish(1)
     return 1
@@ -82,6 +82,14 @@ endfunction
 function! s:_is_cmdwin()
   return bufname('%') ==# '[Command Line]'
 endfunction
+
+" main -- executed only when this file is executed as like :source %
+if expand("%:p") == expand("<sfile>:p")
+  let runner = deepcopy(s:runner)
+  let runner.name = 'neoclojure'
+  let runner.kind = 'runner'
+  call quickrun#module#register(runner, 1)
+endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
