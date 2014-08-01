@@ -97,4 +97,5 @@
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
 
-#_ (println (search "(ns aaa (:import [java.net URI]))" ".getN"))
+(doseq  [x (rest *command-line-args*)]
+  (println (search "(ns aaa (:import [java.net URI]))" x)))
