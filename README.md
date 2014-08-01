@@ -52,6 +52,18 @@ let g:quickrun_config.clojure = {
     * it'll be done asynchronously in the future.
 * No clojure function completions yet.
 
+## Philosophy
+
+What neoclojure doesn't do:
+
+* neoclojure doesn't implement everything here.
+    * It depends on embedded libraries.
+    * It uses other plugins *only if* you already have.
+    * It doesn't parse Clojure in Vim script. Let Clojure does that work; it knows more about itself.
+* neoclojure doesn't spawn Clojure daemon.
+    * It just spawns Clojure process and communicate with stdout/stderr instead of socket.
+    * When Vim dies, Clojure process also dies. That's what it should be.
+
 ## Links
 
 <http://twitter.com/neoclojure>
