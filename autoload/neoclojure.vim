@@ -256,8 +256,8 @@ endfunction
 if expand("%:p") == expand("<sfile>:p")
   " call neoclojure#killall()
 
-  echo '## neoclojure#test_findstart()'
-  call neoclojure#test_findstart()
+  " echo '## neoclojure#test_findstart()'
+  " call neoclojure#test_findstart()
 
   echo '## neoclojure#test()'
   echo neoclojure#test()
