@@ -150,7 +150,6 @@ function! neoclojure#complete(findstart, base)
     if !success
       return []
     endif
-    echomsg string([ns_declare])
 
     let [success, table] = s:search(p, ns_declare, a:base)
     if !success
