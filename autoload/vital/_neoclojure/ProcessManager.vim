@@ -149,7 +149,8 @@ function! s:of(label, command)
         \ 'reserve_writeln': function('s:reserve_writeln'),
         \ 'reserve_read': function('s:reserve_read'),
         \ 'go_bulk': function('s:go_bulk'),
-        \ 'go_part': function('s:go_part')}
+        \ 'go_part': function('s:go_part'),
+        \ 'tick': function('s:tick')}
   let s:_processes2[a:label] = p
   return p
 endfunction
@@ -191,11 +192,31 @@ function! s:_reserve(self, key, value)
 endfunction
 
 function! s:_trigger(self)
+  let trigger2 = s:_trigger2(a:self)
+  if !has_key(trigger2, 'ready to read')
+    return trigger2
+  endif
+
+  let [msgkey, msgvalue] = a:self['*mailbox*'][0]
+  let [out, err, t] = s:read(a:self.label, msgvalue)
+  if t ==# 'matched'
+    call remove(a:self['*mailbox*'], 0)
+    let out = a:self['*buffer*'][0] . out
+    let err = a:self['*buffer*'][1] . err
+    return {'done': 1, 'fail': 0, 'out': out, 'err': err}
+  else
+    let out .= a:self['*buffer*'][0]
+    let err .= a:self['*buffer*'][1]
+    return {'done': 0, 'fail': 0}
+  endif
+endfunction
+
+function! s:_trigger2(self)
   let [msgkey, msgvalue] = a:self['*mailbox*'][0]
   if msgkey ==# 'writeln'
     call s:writeln(a:self.label, msgvalue)
     call remove(a:self['*mailbox*'], 0)
-    return s:_trigger(a:self)
+    return s:_trigger2(a:self)
   elseif msgkey ==# 'wait'
     let [_, _, t] = s:read(a:self.label, msgvalue)
     if t ==# 'matched'
@@ -203,17 +224,7 @@ function! s:_trigger(self)
     endif
     return {'done': 0, 'fail': 0}
   elseif msgkey ==# 'read'
-    let [out, err, t] = s:read(a:self.label, msgvalue)
-    if t ==# 'matched'
-      call remove(a:self['*mailbox*'], 0)
-      let out = a:self['*buffer*'][0] . out
-      let err = a:self['*buffer*'][1] . err
-      return {'done': 1, 'fail': 0, 'out': out, 'err': err}
-    else
-      let out .= a:self['*buffer*'][0]
-      let err .= a:self['*buffer*'][1]
-      return {'done': 0, 'fail': 0}
-    endif
+    return {'ready to read': 'civ5'}
   endif
 endfunction
 
@@ -278,6 +289,21 @@ function! s:_go(bulk_or_part, self)
     endif
   else
     throw printf('Vital.ProcessManager: Must not happen: %s', state)
+  endif
+endfunction
+
+function! s:tick() dict
+  if self.is_idle()
+    return
+  endif
+
+  let [msgkey, msgvalue] = self['*mailbox*'][0]
+  let state = s:state(self.label)
+
+  if state ==# 'reading' && msgkey ==# 'wait'
+    call s:read(self.label, msgvalue)
+  elseif state ==# 'undefined'
+    return s:_trigger2(self)
   endif
 endfunction
 
