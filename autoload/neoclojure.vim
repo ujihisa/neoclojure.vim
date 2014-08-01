@@ -60,7 +60,7 @@ function! neoclojure#project_root_path(fname)
   return [0, '']
 endfunction
 
-function! s:give_me_p(fname)
+function! neoclojure#_give_me_p(fname)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
 
   let cwd = getcwd()
@@ -140,7 +140,7 @@ function! s:findstart(line_before)
 endfunction
 
 function! neoclojure#complete(findstart, base)
-  let p = s:give_me_p(expand('%'))
+  let p = neoclojure#_give_me_p(expand('%'))
 
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
@@ -183,7 +183,7 @@ function! neoclojure#test()
 
   let testfile = printf('%s/../test/src/cloft2/fast_dash.clj', s:_SFILEDIR)
 
-  let p = s:give_me_p(testfile)
+  let p = neoclojure#_give_me_p(testfile)
 
   let before = reltime()
   let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
@@ -250,6 +250,35 @@ function! neoclojure#test_findstart()
   echo s:findstart('aaa .g') == 4
   echo s:findstart('aaa .g s/') == 7
   echo s:findstart('aaa g.c.d.ws/k') == 4
+endfunction
+
+function! neoclojure#dev_quickrun()
+  let p = neoclojure#_give_me_p(expand('%'))
+  " check if this file is under src as well
+
+  if !p.is_idle()
+    echoerr 'Busy. Try again.'
+    return
+  endif
+
+  " let ns = printf('%s.%s',
+  "       \ expand('%:p:h:t'),
+  "       \ substitute(expand('%:t:r'), '_', '-', 'g'))
+  call p.reserve_writeln(printf('(load-file "%s")', escape(expand('%:p'), '"')))
+        \.reserve_read(['user=>'])
+
+  while 1
+    let result = p.go_part()
+    if result.done
+      echomsg string([result])
+      return
+    elseif has(result, 'part')
+      echomsg string(['part', result])
+    elseif result.fail
+      echoerr 'Restarting...'
+      return neoclojure#quickrun()
+    endif
+  endwhile
 endfunction
 
 " main -- executed only when this file is executed as like :source %

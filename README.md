@@ -30,6 +30,12 @@ augroup vimrc-neoclojure
 augroup END
 ```
 
+If you have quickrun.vim, include this as well.
+
+```vim
+let g:quickrun_config.clojure = {'runner': 'neoclojure', 'command': 'dummy'}
+```
+
 ## Development progress / todo
 
 * SECURITY WARNING! This plugin *executes* your clojure/java code silently. This problem will be fixed before version 0.1 release. (Current version is 0.1-dev)

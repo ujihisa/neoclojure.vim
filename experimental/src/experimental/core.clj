@@ -4,8 +4,7 @@
   (:require #_[clojail.core]
             [clojure.repl]
             [clojure.tools.reader :as r]
-            [clojure.tools.reader.reader-types :as rt]
-            ))
+            [clojure.tools.reader.reader-types :as rt]))
 
 #_ (defn -main []
   (try (let [sandbox (clojail.core/sandbox #{}) ]
