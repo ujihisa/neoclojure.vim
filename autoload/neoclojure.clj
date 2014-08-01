@@ -27,6 +27,12 @@
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
 
+(defn find-ns-declare [content]
+  (let [first-expr (read-string content)]
+    (if (= 'ns (first first-expr))
+      first-expr
+      '(ns dummy))))
+
 (defn- eval-in&give-me-ns [^String ns-declare]
   (let [parsed (read-string ns-declare)]
     (when (= 'ns (first parsed))

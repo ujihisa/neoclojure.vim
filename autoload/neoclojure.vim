@@ -91,19 +91,19 @@ endfunction
 
 function! neoclojure#ns_declare(p, lines)
   let to_write = printf(
-        \   '(let [first-expr (read-string "%s")] (if (= ''ns (first first-expr)) first-expr ''(ns dummy)))',
+        \   '(neoclojure/find-ns-declare "%s")',
         \   escape(join(a:lines, "\n"), '"\'))
   call a:p.reserve_writeln(to_write)
         \.reserve_read(['user=>'])
   while 1 " blocking!
     let result = a:p.go_bulk()
     if result.done && len(result.err)
-      return [1, '(ns dummy)']
+      return [1, '(ns dummy)', result.err]
     elseif result.done
-      return [1, result.out]
+      return [1, result.out, '']
     elseif result.fail
       call a:p.shutdown()
-      return [0, 'Process is dead']
+      return [0, 'Process is dead', '']
     endif
   endwhile
 endfunction
@@ -146,7 +146,7 @@ function! neoclojure#complete(findstart, base)
     let line_before = getline('.')[0 : col('.') - 2]
     return s:findstart(line_before)
   else
-    let [success, ns_declare] = neoclojure#ns_declare(p, getline(1, '$'))
+    let [success, ns_declare, warn] = neoclojure#ns_declare(p, getline(1, '$'))
     if !success
       return []
     endif
@@ -186,13 +186,13 @@ function! neoclojure#test()
   let p = neoclojure#_give_me_p(testfile)
 
   let before = reltime()
-  let [success, ns_dec] = neoclojure#ns_declare(p, readfile(testfile))
+  let [success, ns_dec, warn] = neoclojure#ns_declare(p, readfile(testfile))
   if !success
     echo 'Process is dead. Auto-restarting...'
     return neoclojure#test()
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))"
-  echo ['ns declare', substitute(ns_dec, '\(\r\?\n\)*$', '', '') == expected ? 'ok' : ns_dec]
+  echo ['ns declare', substitute(ns_dec, '\(\r\?\n\)*$', '', '') == expected ? 'ok' : ns_dec, warn]
   echo ['ns declare took', reltimestr(reltime(before))]
 
 
