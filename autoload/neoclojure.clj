@@ -30,7 +30,9 @@
 (defn- eval-in&give-me-ns [^String ns-declare]
   (let [parsed (read-string ns-declare)]
     (when (= 'ns (first parsed))
-      (eval parsed)
+      (try
+        (eval parsed)
+        (catch Exception e e))
       (let [probably-ns *ns*]
         (ns neoclojure)
         probably-ns))))
@@ -94,4 +96,5 @@
               [:P (to-hashmap (set java-namespaces))]
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
-#_(println (search "(ns aaa (:import [java.net URI]))" ".getN"))
+
+#_ (println (search "(ns aaa (:import [java.net URI]))" ".getN"))
