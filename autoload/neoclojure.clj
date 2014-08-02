@@ -2,11 +2,17 @@
   (:require [clojure.string :as s]
             [clojure.repl]))
 
-(defn split-at-last-dot [st]
+(defn
+  ^{:test (fn []
+            (assert (= ["hello" "world"] (split-at-last-dot "hello.world")))
+            (assert (= ["hello.this" "world"] (split-at-last-dot "hello.this..world")))
+            (assert (= [nil "world"] (split-at-last-dot "world"))))}
+  split-at-last-dot [st]
   (let [[left right] (s/split st #"\.(?=[^\.]*$)")]
     (if right
       [left right]
       [nil (str left)])))
+#_ (prn (test #'split-at-last-dot))
 
 (defn ^String ->vimson [x]
   (cond
