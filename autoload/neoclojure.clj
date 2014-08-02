@@ -140,7 +140,7 @@
               [:P (to-hashmap (set java-namespaces))]
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
-(prn 'complete-candidates (test #'complete-candidates))
+#_ (prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
