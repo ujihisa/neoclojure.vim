@@ -34,6 +34,11 @@
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
 
+(defn- some-read-string [^String s]
+  (try
+    (read-string s)
+    (catch RuntimeException e nil)))
+
 (defn
  ^{:test (fn []
            (assert (= '(ns dummy) (find-ns-declare "")))
@@ -44,17 +49,20 @@
            (assert (= '(ns aaa (:require [clojure.strin]))
                       (find-ns-declare "(ns aaa (:require [clojure.strin]))"))))}
   find-ns-declare [content]
-  (let [first-expr
-        (try
-          (read-string content)
-          (catch Exception e nil))]
+  (let [first-expr (some-read-string content)]
     (if (and first-expr (= 'ns (first first-expr)))
       first-expr
       '(ns dummy))))
 #_ (prn 'find-ns-declare (test #'find-ns-declare))
 
-(defn- eval-in&give-me-ns [^String ns-declare]
-  (let [parsed (read-string ns-declare)]
+(defn-
+ ^{:test (fn []
+           (assert (nil? (eval-in&give-me-ns "")))
+           (assert (= 'aaa (.getName (eval-in&give-me-ns "(ns aaa)"))))
+           (assert (nil? (eval-in&give-me-ns "(ns aaa")))
+           )}
+  eval-in&give-me-ns [^String ns-declare]
+  (let [parsed (some-read-string ns-declare)]
     (when (= 'ns (first parsed))
       (try
         (eval parsed)
@@ -65,6 +73,7 @@
           (if (.startsWith (.getMessage e) "EOF while reading")
             nil
             (clojure.repl/pst)))))))
+#_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
 (defn complete-candidates [ns-declare phrase]
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
