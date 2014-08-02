@@ -107,7 +107,7 @@ function! neoclojure#complete#test()
   let [success, ns_dec, warn] = neoclojure#ns_declare(p, readfile(testfile))
   if !success
     echo 'Process is dead. Auto-restarting...'
-    return neoclojure#test()
+    return neoclojure#complete#test()
   endif
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))"
   echo ['ns declare', substitute(ns_dec, '\(\r\?\n\)*$', '', '') == expected ? 'ok' : ns_dec, warn]
