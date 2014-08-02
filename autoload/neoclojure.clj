@@ -29,8 +29,11 @@
           {} darr))
 
 (defn find-ns-declare [content]
-  (let [first-expr (read-string content)]
-    (if (= 'ns (first first-expr))
+  (let [first-expr
+        (try
+          (read-string content)
+          (catch Exception e nil))]
+    (if (and first-expr (= 'ns (first first-expr)))
       first-expr
       '(ns dummy))))
 

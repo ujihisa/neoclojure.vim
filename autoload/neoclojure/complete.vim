@@ -1,7 +1,7 @@
 let s:V = vital#of('neoclojure')
 let s:LX = s:V.import('Text.Lexer')
 let s:L = s:V.import('Data.List')
-" let s:S = s:V.import('Data.String')
+let s:S = s:V.import('Data.String')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 function! s:findstart(line_before)
