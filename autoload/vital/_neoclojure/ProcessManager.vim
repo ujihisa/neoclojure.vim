@@ -198,6 +198,7 @@ function! s:_trigger(self)
   endif
 
   let [msgkey, msgvalue] = a:self['*mailbox*'][0]
+
   let [out, err, t] = s:read(a:self.label, msgvalue)
   if t ==# 'matched'
     call remove(a:self['*mailbox*'], 0)
@@ -205,8 +206,8 @@ function! s:_trigger(self)
     let err = a:self['*buffer*'][1] . err
     return {'done': 1, 'fail': 0, 'out': out, 'err': err}
   else
-    let out .= a:self['*buffer*'][0]
-    let err .= a:self['*buffer*'][1]
+    let a:self['*buffer*'][0] .= out
+    let a:self['*buffer*'][1] .= err
     return {'done': 0, 'fail': 0}
   endif
 endfunction
@@ -269,7 +270,7 @@ function! s:_go(bulk_or_part, self)
     return result
 
   elseif state ==# 'undefined'
-    return s:_trigger(self)
+    return s:_trigger2(self)
 
   elseif state ==# 'idle'
     " idle == current message processing is done. finish it.
