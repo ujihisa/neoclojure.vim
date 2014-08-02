@@ -12,7 +12,7 @@
     (if right
       [left right]
       [nil (str left)])))
-#_ (prn (test #'split-at-last-dot))
+#_ (prn 'split-at-last-dot (test #'split-at-last-dot))
 
 (defn ^String ->vimson [x]
   (cond
@@ -34,7 +34,16 @@
             (assoc acc k (conj (get acc k []) v)))
           {} darr))
 
-(defn find-ns-declare [content]
+(defn
+ ^{:test (fn []
+           (assert (= '(ns dummy) (find-ns-declare "")))
+           (assert (= '(ns aaa) (find-ns-declare "(ns aaa)")))
+           (assert (= '(ns dummy) (find-ns-declare "(ns aaa")))
+           (assert (= '(ns aaa (:require [clojure.string]))
+                      (find-ns-declare "(ns aaa (:require [clojure.string]))")))
+           (assert (= '(ns aaa (:require [clojure.strin]))
+                      (find-ns-declare "(ns aaa (:require [clojure.strin]))"))))}
+  find-ns-declare [content]
   (let [first-expr
         (try
           (read-string content)
@@ -42,6 +51,7 @@
     (if (and first-expr (= 'ns (first first-expr)))
       first-expr
       '(ns dummy))))
+#_ (prn 'find-ns-declare (test #'find-ns-declare))
 
 (defn- eval-in&give-me-ns [^String ns-declare]
   (let [parsed (read-string ns-declare)]
