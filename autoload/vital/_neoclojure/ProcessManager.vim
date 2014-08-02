@@ -265,6 +265,9 @@ function! s:_go(bulk_or_part, self)
       let self['*buffer*'][1] .= err
       let result = {'done': 0, 'fail': 0}
     else " 'part'
+      let out = self['*buffer*'][0] . out
+      let err = self['*buffer*'][1] . err
+      let self['*buffer*'] = ['', '']
       let result = {'done': 0, 'fail': 0, 'part': {'out': out, 'err': err}}
     endif
     return result
