@@ -21,7 +21,7 @@ function! s:runner.run(commands, input, session)
   let fname = expand('%')
   let p = neoclojure#of(
         \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
-  " if !p.is_idle()
+  " if !p.is_new() && !p.is_idle()
   "   echoerr 'Busy. Try again.'
   "   return
   " endif
@@ -48,7 +48,7 @@ function! s:receive(key, fname)
   call feedkeys(mode() ==# 'i' ? "\<C-g>\<ESC>" : "g\<ESC>", 'n')
 
   let session = quickrun#session(a:key)
-  let p = neoclojure#_give_me_p(a:fname)
+  let p = neoclojure#of(a:fname)
 
   let result = p.go_part()
   if result.fail
