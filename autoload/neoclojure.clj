@@ -50,7 +50,7 @@
                       (find-ns-declare "(ns aaa (:require [clojure.strin]))"))))}
   find-ns-declare [content]
   (let [first-expr (some-read-string content)]
-    (if (and first-expr (= 'ns (first first-expr)))
+    (if (and (list? first-expr) (= 'ns (first first-expr)))
       first-expr
       '(ns dummy))))
 #_ (prn 'find-ns-declare (test #'find-ns-declare))
@@ -76,7 +76,12 @@
         (finally (in-ns (.getName orig-ns)))))))
 #_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
-(defn complete-candidates [ns-declare phrase]
+(defn
+  ^{:tag String
+    :test (fn []
+            (assert (= "[[\"M\", {\".toPlainString\":[\"java.math.BigDecimal\"]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+                       (complete-candidates "(ns aaa)" ".toPlai"))))}
+  complete-candidates [ns-declare phrase]
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
     (let [[given-package given-class+] (split-at-last-dot phrase)
           java-instance-methods
@@ -135,6 +140,7 @@
               [:P (to-hashmap (set java-namespaces))]
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
+(prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
