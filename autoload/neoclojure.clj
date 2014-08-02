@@ -70,9 +70,7 @@
     (when (and (list? parsed) (= 'ns (first parsed)))
       (try
         (eval parsed)
-        (let [probably-ns *ns*]
-          (ns neoclojure)
-          probably-ns)
+        *ns*
         (catch java.io.FileNotFoundException e (.getMessage e))
         (catch Exception e (clojure.repl/pst e))
         (finally (in-ns (.getName orig-ns)))))))
