@@ -3,6 +3,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let g:neoclojure_quickrun_default_project_dir =
+      \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp')
+
 let s:runner = {}
 
 augroup plugin-quickrun-neoclojure
@@ -15,7 +18,9 @@ function! s:runner.validate()
 endfunction
 
 function! s:runner.run(commands, input, session)
-  let p = neoclojure#_give_me_p(expand('%'))
+  let fname = expand('%')
+  let p = neoclojure#of(
+        \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
   " if !p.is_idle()
   "   echoerr 'Busy. Try again.'
   "   return

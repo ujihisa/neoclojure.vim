@@ -60,7 +60,7 @@ function! neoclojure#project_root_path(fname)
   return [0, '']
 endfunction
 
-function! neoclojure#_give_me_p(fname)
+function! neoclojure#of(fname)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
 
   let cwd = getcwd()
@@ -140,7 +140,7 @@ function! s:findstart(line_before)
 endfunction
 
 function! neoclojure#complete(findstart, base)
-  let p = neoclojure#_give_me_p(expand('%'))
+  let p = neoclojure#of(expand('%'))
 
   " dirty hack; it should be done in config or in neocomplete
   if exists('*neocomplete#initialize') && synIDattr(synIDtrans(synID(line("."), col("."), 1)), 'name') ==# "String"
@@ -191,7 +191,7 @@ function! neoclojure#test()
 
   let testfile = printf('%s/../test/src/cloft2/fast_dash.clj', s:_SFILEDIR)
 
-  let p = neoclojure#_give_me_p(testfile)
+  let p = neoclojure#of(testfile)
 
   let before = reltime()
   let [success, ns_dec, warn] = neoclojure#ns_declare(p, readfile(testfile))
@@ -261,7 +261,7 @@ function! neoclojure#test_findstart()
 endfunction
 
 function! neoclojure#dev_quickrun()
-  let p = neoclojure#_give_me_p(expand('%'))
+  let p = neoclojure#of(expand('%'))
   " check if this file is under src as well
 
   if !p.is_idle()
