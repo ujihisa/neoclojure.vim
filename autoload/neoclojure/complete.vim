@@ -1,7 +1,7 @@
 let s:V = vital#of('neoclojure')
 let s:LX = s:V.import('Text.Lexer')
 let s:L = s:V.import('Data.List')
-let s:S = s:V.import('Data.String')
+" let s:S = s:V.import('Data.String')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 function! s:findstart(line_before)
@@ -49,7 +49,7 @@ function! s:search(p, ns_declare, partial_methodname)
         let rtn = [1, eval(s:S.lines(result.out)[0])]
         return rtn " this let is vital for avoiding Vim script's bug
       catch
-        return [0, string(result)]
+        return [0, string([v:exception, result])]
       endtry
     endif
   endwhile
@@ -77,6 +77,7 @@ function! neoclojure#complete#omni(findstart, base)
 
     let [success, table] = s:search(p, ns_declare, a:base)
     if !success
+      echomsg table
       return []
     endif
 
@@ -111,17 +112,17 @@ function! neoclojure#complete#test()
   let expected = "(ns cloft2.fast-dash (:use [cloft2.lib :only (later sec)]) (:import [org.bukkit Bukkit Material]))"
   echo ['ns declare', substitute(ns_dec, '\(\r\?\n\)*$', '', '') == expected ? 'ok' : ns_dec, warn]
   echo ['ns declare took', reltimestr(reltime(before))]
+  unlet! expected
 
 
   let before = reltime()
   let [success, table] = s:search(p, ns_dec, '.isF')
   if success
-    unlet! expected
     let expected = [['M', {'.isFlammable': ['org.bukkit.Material']}], ['S', {}], ['P', {}], ['E', {}]]
     echo ['instance methods', table == expected ? 'ok' : table]
     echo ['instance methods took', reltimestr(reltime(before))]
   else
-    return 'instance method search failed'
+    return printf('instance method search failed: %s', table)
   endif
 
   let [success, table] = s:search(p, ns_dec, 'String/')
