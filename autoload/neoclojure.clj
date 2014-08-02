@@ -56,23 +56,26 @@
 #_ (prn 'find-ns-declare (test #'find-ns-declare))
 
 (defn-
- ^{:test (fn []
+ ^{:tag clojure.lang.Namespace
+   :test (fn []
            (assert (nil? (eval-in&give-me-ns "")))
            (assert (= 'aaa (.getName (eval-in&give-me-ns "(ns aaa)"))))
            (assert (nil? (eval-in&give-me-ns "(ns aaa")))
-           )}
+           #_ (prn 'final (eval-in&give-me-ns "(ns aaa (:require [abc]))"))
+           (assert (= "Could not locate abc__init.class or abc.clj on classpath: "
+                      (eval-in&give-me-ns "(ns aaa (:require [abc]))"))))}
   eval-in&give-me-ns [^String ns-declare]
-  (let [parsed (some-read-string ns-declare)]
-    (when (= 'ns (first parsed))
+  (let [orig-ns *ns*
+        parsed (some-read-string ns-declare)]
+    (when (and (list? parsed) (= 'ns (first parsed)))
       (try
         (eval parsed)
         (let [probably-ns *ns*]
           (ns neoclojure)
           probably-ns)
-        (catch Exception e
-          (if (.startsWith (.getMessage e) "EOF while reading")
-            nil
-            (clojure.repl/pst)))))))
+        (catch java.io.FileNotFoundException e (.getMessage e))
+        (catch Exception e (clojure.repl/pst e))
+        (finally (in-ns (.getName orig-ns)))))))
 #_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
 (defn complete-candidates [ns-declare phrase]
