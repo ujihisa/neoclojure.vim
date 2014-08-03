@@ -98,8 +98,10 @@
 
 (defn-
   ^{:test (fn []
-            (assert (= [["s/reverse" "[s]"]]
-                       (vec (clojure-ns-vars* *ns* "s/rev")))))}
+            (assert (= [["s/reverse" "[s]"]] (clojure-ns-vars* *ns* "s/rev")))
+            (assert (= [["clojure.set/map-invert" "[m]"]]
+                       (clojure-ns-vars* *ns* "clojure.set/map-inve")))
+            (prn (clojure-ns-vars* *ns* "clojure.set/map-inve")))}
   clojure-ns-vars* [given-ns phrase]
   (let [alias-table (clojure.set/map-invert (ns-aliases given-ns))]
     (for [nz (all-ns)
@@ -107,7 +109,7 @@
           nz-str (filter identity [(.getName nz) (alias-table nz)])
           :let [vname  (format "%s/%s" nz-str sym)]
           :when (.startsWith vname phrase)]
-      [vname  (s/join ", " (-> f meta :arglists))])))
+      [vname (s/join ", " (-> f meta :arglists))])))
 #_ (prn 'clojure-ns-vars* (test #'clojure-ns-vars*))
 
 (defn
