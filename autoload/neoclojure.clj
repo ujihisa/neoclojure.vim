@@ -100,7 +100,7 @@
             (assert (= [["s/reverse" "[s]"]]
                        (vec (clojure-ns-vars* *ns* "s/rev")))))}
   clojure-ns-vars* [given-ns phrase]
-  (let [alias-table (clojure.set/map-invert (ns-aliases *ns*))]
+  (let [alias-table (clojure.set/map-invert (ns-aliases given-ns))]
     (for [nz (all-ns)
           [sym f] (ns-publics nz)
           nz-str (filter identity [(.getName nz) (alias-table nz)])
