@@ -55,7 +55,7 @@ function! s:receive(key, fname)
     call g:quickrun#V.Vim.Message.warn('The process is inactive. Restarting...')
     call p.shutdown()
     autocmd! plugin-quickrun-neoclojure
-    call session.finish()
+    call session.finish(1)
     return session.run()
   elseif has_key(result, 'part')
     call session.output(result.part.out . (result.part.err ==# '' ? '' : printf('!!!%s!!!', result.part.err)))
@@ -63,7 +63,7 @@ function! s:receive(key, fname)
   elseif result.done
     call session.output(result.out . (result.err ==# '' ? '' : printf('!!!%s!!!', result.err)))
     autocmd! plugin-quickrun-neoclojure
-    call session.finish(1)
+    call session.finish(0)
     return 1
   else
     return 0
