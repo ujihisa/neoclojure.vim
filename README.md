@@ -47,10 +47,14 @@ let g:quickrun_config.clojure = {
     * Static Methods e.g. `(String/format)`
     * Static Enum Constants `Thread$STATE/BLOCKED`
     * ... They are based on `(ns (:import ...))`
+* Clojure completions (WIP)
+    * <http://gyazo.com/04c943ca6b5c337fab39dd10fd201617>
+    * <http://gyazo.com/08d52356cba83f58aac4deb2a1447bed>
+    * <http://gyazo.com/9c2221ecfc315b26d63eb5a6c73db3bb>
+    * <http://gyazo.com/b5d33baff6410c573e27016242ee5f97>
 
-* First time completion takes very long time (like 4sec)
+* First time completion may take very long time (like 4sec)
     * it'll be done asynchronously in the future.
-* No clojure function completions yet.
 
 ## Philosophy
 
