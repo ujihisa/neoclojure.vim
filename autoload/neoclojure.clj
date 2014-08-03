@@ -76,6 +76,39 @@
         (finally (in-ns (.getName orig-ns)))))))
 #_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
+(defn- prn* [& xs]
+  (apply prn xs)
+  (last xs))
+
+(defn-
+  ^{:test (fn []
+            (assert (= [[".toPlainString" "java.math.BigDecimal"]]
+                       (java-instance-methods* *ns* ".toPlainString"))))}
+  java-instance-methods* [given-ns phrase]
+  (for [[sym cls] (ns-imports given-ns)
+        method (.getMethods cls)
+        :let [mname (str "." (.getName method))]
+        :when (and
+                (not (-> method .getModifiers
+                       java.lang.reflect.Modifier/isStatic))
+                (.startsWith mname phrase))]
+    [mname (.getName cls)]))
+#_ (prn 'java-instance-methods* (test #'java-instance-methods*))
+
+(defn-
+  ^{:test (fn []
+            (assert (= [["s/reverse" "[s]"]]
+                       (vec (clojure-ns-vars* *ns* "s/rev")))))}
+  clojure-ns-vars* [given-ns phrase]
+  (let [alias-table (clojure.set/map-invert (ns-aliases *ns*))]
+    (for [nz (all-ns)
+          [sym f] (ns-publics nz)
+          nz-str (filter identity [(.getName nz) (alias-table nz)])
+          :let [vname  (format "%s/%s" nz-str sym)]
+          :when (.startsWith vname phrase)]
+      [vname  (s/join ", " (-> f meta :arglists))])))
+#_ (prn 'clojure-ns-vars* (test #'clojure-ns-vars*))
+
 (defn
   ^{:tag String
     :test (fn []
@@ -84,15 +117,13 @@
   complete-candidates [ns-declare phrase]
   (when-let [given-ns (eval-in&give-me-ns ns-declare)]
     (let [[given-package given-class+] (split-at-last-dot phrase)
+
           java-instance-methods
-          (for [[sym cls] (ns-imports given-ns)
-                method (.getMethods cls)
-                :let [mname (str "." (.getName method))]
-                :when (and
-                        (not (-> method .getModifiers
-                               java.lang.reflect.Modifier/isStatic))
-                        (.startsWith mname phrase))]
-            [mname (.getName cls)])
+          (java-instance-methods* given-ns phrase)
+
+          clojure-ns-vars
+          (clojure-ns-vars* given-ns phrase)
+
           java-static-methods
           (if given-package
             (for [[sym cls] (ns-imports given-ns)
@@ -136,7 +167,9 @@
       (->
         []
         (conj [:M (to-hashmap (set java-instance-methods))]
-              [:S (to-hashmap (set java-static-methods))]
+              [:S (to-hashmap (concat
+                                (set java-static-methods)
+                                (set clojure-ns-vars)))]
               [:P (to-hashmap (set java-namespaces))]
               [:E (to-hashmap (set java-enum-constants))])
         ->vimson))))
