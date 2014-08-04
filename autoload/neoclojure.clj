@@ -75,7 +75,7 @@
         (catch java.io.FileNotFoundException e (.getMessage e))
         (catch Exception e (clojure.repl/pst e))
         (finally (in-ns (.getName orig-ns)))))))
-(prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
+#_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
 (defn- prn* [& xs]
   (apply prn xs)
@@ -183,7 +183,7 @@
                 [:P (to-hashmap (set java-namespaces))]
                 [:E (to-hashmap (set java-enum-constants))])
           ->vimson)))))
-(prn 'complete-candidates (test #'complete-candidates))
+#_ (prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
