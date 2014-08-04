@@ -30,6 +30,7 @@ endfunction
 
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
+  redraw
   call p.reserve_writeln(printf(
         \ '(println (neoclojure/complete-candidates "%s" "%s"))',
         \ escape(a:ns_declare, '"\'),
