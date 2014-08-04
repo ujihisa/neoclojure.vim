@@ -1,6 +1,7 @@
 (ns neoclojure
   (:require [clojure.string :as s]
-            [clojure.repl]))
+            [clojure.repl]
+            [clojure.set]))
 
 (defn
   ^{:test (fn []
