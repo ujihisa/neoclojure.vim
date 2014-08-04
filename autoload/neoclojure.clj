@@ -115,8 +115,8 @@
 (defn
   ^{:tag String
     :test (fn []
-            (assert (= "[[\"M\", {\".toPlainString\":[\"java.math.BigDecimal\"]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
-                       (complete-candidates "(ns aaa)" ".toPlai"))))}
+            (prn "[[\"M\", {\".toPlainString\":[\"java.math.BigDecimal\"]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+                 (complete-candidates "(ns aaa)" ".toPlai")))}
   complete-candidates [ns-declare phrase]
   (let [given-ns (eval-in&give-me-ns ns-declare)]
     (cond
@@ -173,14 +173,34 @@
             (for [[_ v] (ns-imports given-ns)
                   :let [fqdn-name (.getName v)]
                   :when (.startsWith fqdn-name phrase)]
-              [fqdn-name ""])]
+              [fqdn-name ""])
+
+            java-unimported-namespaces
+            (let [known-classes (for [[_ cls] (ns-imports given-ns)]
+                                  (.getName cls))
+                  classes
+                  (for [url (.getURLs (ClassLoader/getSystemClassLoader))
+                        :let [path (.getPath url)]
+                        :when (.endsWith path ".jar")
+                        :let [jar (java.util.jar.JarFile. path)]
+                        entry (enumeration-seq (.entries jar))
+                        :when (.endsWith (.getName entry) ".class")]
+                    (-> (.getName entry)
+                      (.replaceAll "/" ".")
+                      (.replaceAll "\\.class$" "")
+                      (.replaceAll "\\$.*" "")
+                      (.replaceAll "__init$" ""))) ]
+              (for [fqdn-name (clojure.set/difference (set classes) (set known-classes))]
+                [fqdn-name "(not imported yet)"]))]
         (->
           []
           (conj [:M (to-hashmap (set java-instance-methods))]
                 [:S (to-hashmap (concat
                                   (set java-static-methods)
                                   (set clojure-ns-vars)))]
-                [:P (to-hashmap (set java-namespaces))]
+                [:P (to-hashmap (concat
+                                  (set java-namespaces)
+                                  java-unimported-namespaces))]
                 [:E (to-hashmap (set java-enum-constants))])
           ->vimson)))))
 #_ (prn 'complete-candidates (test #'complete-candidates))
