@@ -80,3 +80,22 @@
     (prn "------------------------------------------")
     (prn (eval (parse-clojure "org.bukkit.Bukkit")))))
 
+; overwrite
+(defn -main []
+  (let [known-classes (for [[_ cls] (ns-imports *ns*)]
+                        (.getName cls))
+        classes
+        (for [path (for [url (-> (ClassLoader/getSystemClassLoader) .getURLs)
+                         :let [path (.getPath url)]
+                         :when (.endsWith path ".jar")]
+                     path)
+              :let [ jar (java.util.jar.JarFile. path)]
+              entry (enumeration-seq (.entries jar))
+              :when (.endsWith (.getName entry) ".class")]
+          (-> (.getName entry)
+            (.replaceAll "/" ".")
+            (.replaceAll "\\.class$" "")
+            (.replaceAll "\\$.*" "")
+            (.replaceAll "__init$" "")))]
+    (mapv prn (clojure.set/difference (set classes) (set known-classes)))))
+(-main)
