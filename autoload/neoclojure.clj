@@ -120,9 +120,10 @@
   complete-candidates [ns-declare phrase]
   (let [given-ns (eval-in&give-me-ns ns-declare)]
     (cond
-      ; TODO
+      ; Assuming that's an error message
       (string? given-ns)
-      "[]"
+      (binding [*out* *err*]
+        (println given-ns))
 
       :else
       (let [[given-package given-class+] (split-at-last-dot phrase)

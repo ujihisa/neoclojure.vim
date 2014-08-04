@@ -45,6 +45,10 @@ function! s:search(p, ns_declare, partial_methodname)
 
       return [0, 'neoclojure: lein process had died. Please try again.']
     elseif result.done
+      if len(result.err)
+        return [0, substitute(result.err, '\(\r\?\n\)*$', '', '')]
+      endif
+
       try
         let rtn = [1, eval(s:S.lines(result.out)[0])]
         return rtn " this let is vital for avoiding Vim script's bug
