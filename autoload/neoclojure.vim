@@ -42,7 +42,7 @@ function! neoclojure#of(fname)
     let p = s:PM.of('neoclojure-nonproject' , printf('%s run -m clojure.main/repl', g:neoclojure_lein))
   endif
 
-  execute 'lcd' cwd
+  silent execute 'lcd' cwd
 
   if p.is_new()
     call p.reserve_wait(['.*=>'])
