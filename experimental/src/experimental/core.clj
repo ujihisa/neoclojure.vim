@@ -85,11 +85,10 @@
   (let [known-classes (for [[_ cls] (ns-imports *ns*)]
                         (.getName cls))
         classes
-        (for [path (for [url (-> (ClassLoader/getSystemClassLoader) .getURLs)
-                         :let [path (.getPath url)]
-                         :when (.endsWith path ".jar")]
-                     path)
-              :let [ jar (java.util.jar.JarFile. path)]
+        (for [url (.getURLs (ClassLoader/getSystemClassLoader))
+              :let [path (.getPath url)]
+              :when (.endsWith path ".jar")
+              :let [jar (java.util.jar.JarFile. path)]
               entry (enumeration-seq (.entries jar))
               :when (.endsWith (.getName entry) ".class")]
           (-> (.getName entry)
@@ -97,5 +96,7 @@
             (.replaceAll "\\.class$" "")
             (.replaceAll "\\$.*" "")
             (.replaceAll "__init$" "")))]
-    (mapv prn (clojure.set/difference (set classes) (set known-classes)))))
-(-main)
+    (prn (count (clojure.set/difference (set classes) (set known-classes))))))
+(let [t (System/currentTimeMillis)]
+  (-main)
+  (prn (- (System/currentTimeMillis) t)))
