@@ -75,7 +75,7 @@
         (catch java.io.FileNotFoundException e (.getMessage e))
         (catch Exception e (clojure.repl/pst e))
         (finally (in-ns (.getName orig-ns)))))))
-#_ (prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
+(prn 'eval-in&give-me-ns (test #'eval-in&give-me-ns))
 
 (defn- prn* [& xs]
   (apply prn xs)
@@ -118,65 +118,71 @@
             (assert (= "[[\"M\", {\".toPlainString\":[\"java.math.BigDecimal\"]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
                        (complete-candidates "(ns aaa)" ".toPlai"))))}
   complete-candidates [ns-declare phrase]
-  (when-let [given-ns (eval-in&give-me-ns ns-declare)]
-    (let [[given-package given-class+] (split-at-last-dot phrase)
+  (let [given-ns (eval-in&give-me-ns ns-declare)]
+    (cond
+      ; TODO
+      (string? given-ns)
+      "[]"
 
-          java-instance-methods
-          (java-instance-methods* given-ns phrase)
+      :else
+      (let [[given-package given-class+] (split-at-last-dot phrase)
 
-          clojure-ns-vars
-          (clojure-ns-vars* given-ns phrase)
+            java-instance-methods
+            (java-instance-methods* given-ns phrase)
 
-          java-static-methods
-          (if given-package
-            (for [[sym cls] (ns-imports given-ns)
-                  :let [v-package (-> cls .getPackage .getName)]
-                  method (.getMethods cls)
-                  :let [mname (str (.getName cls) "/" (.getName method))]
-                  :when (and
-                          (-> method .getModifiers
-                            java.lang.reflect.Modifier/isStatic)
-                          (.startsWith mname phrase))]
-              [mname ""])
-            (for [[sym cls] (ns-imports given-ns)
-                  method (.getMethods cls)
-                  :let [mname (str sym "/" (.getName method))]
-                  :when (and
-                          (-> method .getModifiers
-                            java.lang.reflect.Modifier/isStatic)
-                          (.startsWith mname phrase))]
-              [mname ""]))
-          java-enum-constants
-          (if given-package
-            (for [[k v] (ns-imports given-ns)
-                  :let [v-package (-> v .getPackage .getName)]
-                  enum (.getEnumConstants v)
-                  :let [class+enum (str k "/" enum)]
-                  :when (and
-                          (= v-package given-package)
-                          (.startsWith class+enum given-class+))]
-              [(str given-package "." class+enum) ""])
-            (for [[k v] (ns-imports given-ns)
-                  :let [v-package (-> v .getPackage .getName)]
-                  enum (.getEnumConstants v)
-                  :let [class+enum (str k "/" enum)]
-                  :when (.startsWith class+enum given-class+)]
-              [class+enum v-package]))
-          java-namespaces
-          (for [[_ v] (ns-imports given-ns)
-                :let [fqdn-name (.getName v)]
-                :when (.startsWith fqdn-name phrase)]
-            [fqdn-name ""])]
-      (->
-        []
-        (conj [:M (to-hashmap (set java-instance-methods))]
-              [:S (to-hashmap (concat
-                                (set java-static-methods)
-                                (set clojure-ns-vars)))]
-              [:P (to-hashmap (set java-namespaces))]
-              [:E (to-hashmap (set java-enum-constants))])
-        ->vimson))))
-#_ (prn 'complete-candidates (test #'complete-candidates))
+            clojure-ns-vars
+            (clojure-ns-vars* given-ns phrase)
+
+            java-static-methods
+            (if given-package
+              (for [[sym cls] (ns-imports given-ns)
+                    :let [v-package (-> cls .getPackage .getName)]
+                    method (.getMethods cls)
+                    :let [mname (str (.getName cls) "/" (.getName method))]
+                    :when (and
+                            (-> method .getModifiers
+                              java.lang.reflect.Modifier/isStatic)
+                            (.startsWith mname phrase))]
+                [mname ""])
+              (for [[sym cls] (ns-imports given-ns)
+                    method (.getMethods cls)
+                    :let [mname (str sym "/" (.getName method))]
+                    :when (and
+                            (-> method .getModifiers
+                              java.lang.reflect.Modifier/isStatic)
+                            (.startsWith mname phrase))]
+                [mname ""]))
+            java-enum-constants
+            (if given-package
+              (for [[k v] (ns-imports given-ns)
+                    :let [v-package (-> v .getPackage .getName)]
+                    enum (.getEnumConstants v)
+                    :let [class+enum (str k "/" enum)]
+                    :when (and
+                            (= v-package given-package)
+                            (.startsWith class+enum given-class+))]
+                [(str given-package "." class+enum) ""])
+              (for [[k v] (ns-imports given-ns)
+                    :let [v-package (-> v .getPackage .getName)]
+                    enum (.getEnumConstants v)
+                    :let [class+enum (str k "/" enum)]
+                    :when (.startsWith class+enum given-class+)]
+                [class+enum v-package]))
+            java-namespaces
+            (for [[_ v] (ns-imports given-ns)
+                  :let [fqdn-name (.getName v)]
+                  :when (.startsWith fqdn-name phrase)]
+              [fqdn-name ""])]
+        (->
+          []
+          (conj [:M (to-hashmap (set java-instance-methods))]
+                [:S (to-hashmap (concat
+                                  (set java-static-methods)
+                                  (set clojure-ns-vars)))]
+                [:P (to-hashmap (set java-namespaces))]
+                [:E (to-hashmap (set java-enum-constants))])
+          ->vimson)))))
+(prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
