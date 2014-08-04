@@ -35,7 +35,7 @@
   #_ (pprint (parse-clojure (slurp "src/experimental/core.clj")))
   #_ (prn "--ready")
 
-  (try
+  #_ (try
     (let [file "(ns aaa
                 (:require [clojure.repl]))
                 (prn 'ok)
@@ -71,9 +71,12 @@
         repositories (get hashmap :repositories {})]
     (prn "------------------------------------------")
     (prn dependencies repositories)
-    (add-dependencies
-      :coordinates dependencies
-      :repositories (merge cemerick.pomegranate.aether/maven-central
-                           {"clojars" "http://clojars.org/repo"}
-                           repositories))
+    (prn "------------------------------------------")
+    (prn (add-dependencies
+           :coordinates dependencies
+           :repositories (merge cemerick.pomegranate.aether/maven-central
+                                {"clojars" "http://clojars.org/repo"}
+                                repositories)))
+    (prn "------------------------------------------")
     (prn (eval (parse-clojure "org.bukkit.Bukkit")))))
+
