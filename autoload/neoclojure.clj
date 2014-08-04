@@ -184,12 +184,14 @@
                         :when (.endsWith path ".jar")
                         :let [jar (java.util.jar.JarFile. path)]
                         entry (enumeration-seq (.entries jar))
-                        :when (.endsWith (.getName entry) ".class")]
-                    (-> (.getName entry)
-                      (.replaceAll "/" ".")
-                      (.replaceAll "\\.class$" "")
-                      (.replaceAll "\\$.*" "")
-                      (.replaceAll "__init$" ""))) ]
+                        :when (.endsWith (.getName entry) ".class")
+                        :let [classname (-> (.getName entry)
+                                          (.replaceAll "/" ".")
+                                          (.replaceAll "\\.class$" "")
+                                          (.replaceAll "\\$.*" "")
+                                          (.replaceAll "__init$" ""))]
+                        :when (.startsWith classname phrase)]
+                    classname)]
               (for [fqdn-name (clojure.set/difference (set classes) (set known-classes))]
                 [fqdn-name "(not imported yet)"]))]
         (->
