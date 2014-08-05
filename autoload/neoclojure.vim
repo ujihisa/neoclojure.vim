@@ -77,12 +77,8 @@ function! neoclojure#of(fname)
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
           \.reserve_writeln(printf(
-          \   '(do (require ''neoclojure.core)(neoclojure.core/initialize "%s"))',
+          \   '(do (require ''neoclojure.core) (require ''neoclojure.search) (neoclojure.core/initialize "%s"))',
           \   escape(dirname, '"')))
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln(printf(
-          \   '(load-file "%s/neoclojure.clj")',
-          \   escape(s:_SFILEDIR, '"')))
           \.reserve_wait(['user=>'])
           \.reserve_writeln("(ns neoclojure)")
           \.reserve_wait(['user=>'])
@@ -94,7 +90,7 @@ endfunction
 
 function! neoclojure#ns_declare(p, lines)
   let to_write = printf(
-        \   '(neoclojure/find-ns-declare "%s")',
+        \   '(neoclojure.search/find-ns-declare "%s")',
         \   escape(join(a:lines, "\n"), '"\'))
   call a:p.reserve_writeln(to_write)
         \.reserve_read(['user=>'])

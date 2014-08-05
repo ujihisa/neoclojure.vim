@@ -1,4 +1,4 @@
-(ns neoclojure
+(ns neoclojure.search
   (:require [clojure.string :as s]
             [clojure.repl]
             [clojure.set]))

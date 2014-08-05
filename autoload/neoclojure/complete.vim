@@ -31,7 +31,7 @@ endfunction
 function! s:search(p, ns_declare, partial_methodname)
   let p = a:p
   call p.reserve_writeln(printf(
-        \ '(println (neoclojure/complete-candidates "%s" "%s"))',
+        \ '(println (neoclojure.search/complete-candidates "%s" "%s"))',
         \ escape(a:ns_declare, '"\'),
         \ escape(a:partial_methodname, '"\')))
         \.reserve_read(['user=>'])
