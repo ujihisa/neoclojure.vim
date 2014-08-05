@@ -5,7 +5,10 @@
             :url "http://www.gnu.org/licenses/gpl-3.0.en.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.reader "0.8.5"]
-                 [com.cemerick/pomegranate "0.3.0"]]
+                 [com.cemerick/pomegranate "0.3.0"]
+                 ; Dirty hack -- without this leininge takes 0.1.2
+                 ; which doesn't work with clj-http
+                 [org.apache.httpcomponents/httpclient "4.3.3"]]
   :main ^:skip-aot experimental.core
   :target-path "target/%s"
   :min-lein-version "2.2.0"

@@ -1,10 +1,11 @@
 (ns experimental.core
-  (:use [clojure.pprint :only [pprint]]
-        [cemerick.pomegranate :only (add-dependencies)])
+  (:use [clojure.pprint :only [pprint]])
   (:require #_[clojail.core]
             [clojure.repl]
             [clojure.tools.reader :as r]
-            [clojure.tools.reader.reader-types :as rt]))
+            [clojure.tools.reader.reader-types :as rt]
+            [cemerick.pomegranate :as p]
+            [cemerick.pomegranate.aether :as aether]))
 
 #_ (defn -main []
   (try (let [sandbox (clojail.core/sandbox #{}) ]
@@ -72,16 +73,16 @@
     (prn "------------------------------------------")
     (prn dependencies repositories)
     (prn "------------------------------------------")
-    (prn (add-dependencies
+    (prn (p/add-dependencies
            :coordinates dependencies
-           :repositories (merge cemerick.pomegranate.aether/maven-central
+           :repositories (merge aether/maven-central
                                 {"clojars" "http://clojars.org/repo"}
                                 repositories)))
     (prn "------------------------------------------")
     (prn (eval (parse-clojure "org.bukkit.Bukkit")))))
 
 ; overwrite
-(defn -main []
+#_ (defn -main []
   (let [known-classes (for [[_ cls] (ns-imports *ns*)]
                         (.getName cls))
         classes
@@ -97,6 +98,44 @@
             (.replaceAll "\\$.*" "")
             (.replaceAll "__init$" "")))]
     (prn (count (clojure.set/difference (set classes) (set known-classes))))))
-(let [t (System/currentTimeMillis)]
+#_ (let [t (System/currentTimeMillis)]
   (-main)
   (prn (- (System/currentTimeMillis) t)))
+
+#_ (load-file "/home/ujihisa/.vimbundles/neoclojure.vim/autoload/neoclojure.clj")
+
+(defn-
+  ^{:doc "Give me the path of project.clj file"}
+  project-file->pomegranate-hashmap [^String project-filepath]
+  (let [[_ _ _ & attrs-vec] (parse-clojure (slurp project-filepath))
+        attrs (apply hash-map attrs-vec)]
+    {:coordinates (:dependencies attrs)
+     :repositories (merge aether/maven-central
+                          {"clojars" "http://clojars.org/repo"}
+                          (:repositories attrs))}))
+
+(defn add-dependencies-from-project-file [^String project-filepath]
+  (let [{c :coordinates r :repositories}
+        (project-file->pomegranate-hashmap project-filepath)]
+    #_ (aether/resolve-dependencies :coordinates c :repositories r)
+    (p/add-dependencies :coordinates c :repositories r)))
+
+#_ (prn (project-file->pomegranate-hashmap "/home/ujihisa/git/cloft2/client/project.clj"))
+
+#_ (add-dependencies-from-project-file "/home/ujihisa/.vimbundles/neoclojure.vim/test/project.clj")
+#_ (use '[clojure.tools.namespace.repl :only (refresh)])
+#_ (prn 'refresh (refresh))
+#_ (prn (p/add-classpath "/home/ujihisa/.vimbundles/neoclojure.vim/test/src"))
+#_ (ns x
+  (:require [clj-http.client] :reload-all))
+#_ (prn (vec (.getURLs (ClassLoader/getSystemClassLoader))))
+#_ (vec (.getFields org.apache.http.client.params.ClientPNames))
+
+#_ clj-http.client/post
+
+(defn initialize [^String sfiledir]
+  (p/add-classpath "/home/ujihisa/.vimbundles/neoclojure.vim/autoload")
+  (add-dependencies-from-project-file (str sfiledir "/project.clj"))
+  (p/add-classpath (str sfiledir "/src")))
+
+#_ (initialize "/home/ujihisa/Dropbox/vimbundles/neoclojure.vim/test")
