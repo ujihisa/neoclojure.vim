@@ -62,19 +62,17 @@ endfunction
 
 " new
 function! neoclojure#of(fname)
-  let dirname = printf('%s/../experimental/', s:_SFILEDIR)
+  let [success, dirname] = neoclojure#project_root_path(a:fname)
+  if !success
+    let dirname = '.'
+  endif
 
   let cwd = getcwd()
-  silent execute 'lcd' dirname
+  silent execute 'lcd' printf('%s/../experimental/', s:_SFILEDIR)
   let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
   silent execute 'lcd' cwd
 
   if p.is_new()
-    let [success, dirname] = neoclojure#project_root_path(a:fname)
-    if !success
-      let dirname = '.'
-    endif
-
     call p.reserve_wait(['.*=>'])
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
