@@ -176,7 +176,8 @@
               [fqdn-name ""])
 
             java-unimported-namespaces
-            (let [known-classes (for [[_ cls] (ns-imports given-ns)]
+            []
+            #_ (let [known-classes (for [[_ cls] (ns-imports given-ns)]
                                   (.getName cls))
                   classes
                   (for [url (.getURLs (ClassLoader/getSystemClassLoader))
