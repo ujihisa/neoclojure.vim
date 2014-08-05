@@ -59,6 +59,13 @@ function! s:search(p, ns_declare, partial_methodname)
   endwhile
 endfunction
 
+function! neoclojure#complete#omni_timed(findstart, base)
+  let t = reltime()
+  let rtn = neoclojure#complete#omni(a:findstart, a:base)
+  echomsg string(reltimestr(reltime(t))) . 'sec'
+  return rtn
+endfunction
+
 function! neoclojure#complete#omni(findstart, base)
   let p = neoclojure#of(expand('%'))
 

@@ -79,13 +79,6 @@ function! neoclojure#ns_declare(p, lines)
   endwhile
 endfunction
 
-function! neoclojure#complete_timed(findstart, base)
-  let t = reltime()
-  let rtn = neoclojure#complete(a:findstart, a:base)
-  echomsg string(reltimestr(reltime(t))) . 'sec'
-  return rtn
-endfunction
-
 " Deprecated
 function! neoclojure#complete(findstart, base)
   echomsg 'neoclojure#complete() is deprecated. Please use equivalent neoclojure#complete#omni() instead.'
