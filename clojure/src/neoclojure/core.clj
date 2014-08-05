@@ -1,4 +1,4 @@
-(ns experimental.core
+(ns neoclojure.core
   (:use [clojure.pprint :only [pprint]])
   (:require #_[clojail.core]
             [clojure.repl]

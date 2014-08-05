@@ -68,7 +68,7 @@ function! neoclojure#of(fname)
   endif
 
   let cwd = getcwd()
-  silent execute 'lcd' printf('%s/../experimental/', s:_SFILEDIR)
+  silent execute 'lcd' printf('%s/../clojure/', s:_SFILEDIR)
   let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
   silent execute 'lcd' cwd
 
@@ -77,7 +77,7 @@ function! neoclojure#of(fname)
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
           \.reserve_writeln(printf(
-          \   '(do (require ''experimental.core)(experimental.core/initialize "%s"))',
+          \   '(do (require ''neoclojure.core)(neoclojure.core/initialize "%s"))',
           \   escape(dirname, '"')))
           \.reserve_wait(['user=>'])
           \.reserve_writeln(printf(
