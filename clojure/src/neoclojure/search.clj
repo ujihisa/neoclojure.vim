@@ -1,4 +1,5 @@
 (ns neoclojure.search
+  (:use [clojure.core.strint :only (<<)])
   (:require [clojure.string :as s]
             [clojure.repl]
             [clojure.set]))
@@ -110,7 +111,7 @@
       (for [nz (all-ns)
             [sym f] (ns-publics nz)
             nz-str (filter identity [(.getName nz) (alias-table nz)])
-            :let [vname  (format "%s/%s" nz-str sym)]
+            :let [vname (<< "~{nz-str}/~{sym}")]
             :when (.startsWith vname phrase)]
         [vname (s/join ", " (-> f meta :arglists))]))
     []))
@@ -143,7 +144,7 @@
               (for [[sym cls] (ns-imports given-ns)
                     :let [v-package (-> cls .getPackage .getName)]
                     method (.getMethods cls)
-                    :let [mname (str (.getName cls) "/" (.getName method))]
+                    :let [mname (<< "~(.getName cls)/~(.getName method)")]
                     :when (and
                             (-> method .getModifiers
                               java.lang.reflect.Modifier/isStatic)
@@ -151,7 +152,7 @@
                 [mname ""])
               (for [[sym cls] (ns-imports given-ns)
                     method (.getMethods cls)
-                    :let [mname (str sym "/" (.getName method))]
+                    :let [mname (<< "~{sym}/~(.getName method)")]
                     :when (and
                             (-> method .getModifiers
                               java.lang.reflect.Modifier/isStatic)
