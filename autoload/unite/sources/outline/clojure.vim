@@ -19,7 +19,6 @@ let s:outline_info = {
       \ ],
       \}
 
-
 function! s:outline_info.extract_headings(context)
   if a:context.trigger != 'user'
     return
@@ -43,6 +42,11 @@ function! s:outline_info.extract_headings(context)
     endif
   endwhile
 
-  let rtn = eval(s:S.lines(result.out)[0])
-  return rtn
+  try
+    let rtn = eval(s:S.lines(result.out)[0])
+    return rtn
+  catch
+    echomsg string(['omgomg', result.out, result.err])
+    return []
+  endtry
 endfunction
