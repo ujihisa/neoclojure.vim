@@ -12,10 +12,11 @@
             :let [typ (get #{'ns 'defn 'def 'defn-} (first expr) nil)]
             :when typ]
         {:type (str typ)
-         :word (case typ
-                 'ns (<< "(~{typ} ~(second expr) ...)")
-                 (<< "(~{typ} ~(second expr) ~(nth expr 2) ...)"))
+         :word (if (< 2 (count expr))
+                 (pr-str (concat (take 3 expr) '(...)))
+                 (pr-str expr))
          :lnum (-> expr meta :line)
-         :level 1 #_(if (= 'ns typ) 1 2)})
+         :level 1 #_(if (= 'ns typ) 1 2)
+         :is_volatile 0})
     neoclojure.search/->vimson
     println))

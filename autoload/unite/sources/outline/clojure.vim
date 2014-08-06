@@ -16,6 +16,7 @@ let s:outline_info = {
       \ 'highlight_rules': [
       \   {'name': 'def', 'pattern': '/(def\S*/', 'highlight': 'Special'},
       \   {'name': 'def', 'pattern': '/\[.*/', 'highlight': 'Comment'},
+      \   {'name': 'defprivate', 'pattern': '/(def\S*-/', 'highlight': 'Define'},
       \ ],
       \}
 
