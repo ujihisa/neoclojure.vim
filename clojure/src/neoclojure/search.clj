@@ -86,14 +86,16 @@
             (assert (= [[".toPlainString" "java.math.BigDecimal"]]
                        (java-instance-methods* *ns* ".toPlainString"))))}
   java-instance-methods* [given-ns phrase]
-  (for [[sym cls] (ns-imports given-ns)
-        method (.getMethods cls)
-        :let [mname (str "." (.getName method))]
-        :when (and
-                (not (-> method .getModifiers
-                       java.lang.reflect.Modifier/isStatic))
-                (.startsWith mname phrase))]
-    [mname (.getName cls)]))
+  (if (= \. (first phrase))
+    (for [[sym cls] (ns-imports given-ns)
+          method (.getMethods cls)
+          :let [mname (str "." (.getName method))]
+          :when (and
+                  (not (-> method .getModifiers
+                         java.lang.reflect.Modifier/isStatic))
+                  (.startsWith mname phrase))]
+      [mname (.getName cls)])
+    []))
 #_ (prn 'java-instance-methods* (test #'java-instance-methods*))
 
 (defn-
@@ -103,13 +105,15 @@
                        (clojure-ns-vars* *ns* "clojure.set/map-inve")))
             (prn (clojure-ns-vars* *ns* "clojure.set/map-inve")))}
   clojure-ns-vars* [given-ns phrase]
-  (let [alias-table (clojure.set/map-invert (ns-aliases given-ns))]
-    (for [nz (all-ns)
-          [sym f] (ns-publics nz)
-          nz-str (filter identity [(.getName nz) (alias-table nz)])
-          :let [vname  (format "%s/%s" nz-str sym)]
-          :when (.startsWith vname phrase)]
-      [vname (s/join ", " (-> f meta :arglists))])))
+  (if (.contains phrase "/")
+    (let [alias-table (clojure.set/map-invert (ns-aliases given-ns))]
+      (for [nz (all-ns)
+            [sym f] (ns-publics nz)
+            nz-str (filter identity [(.getName nz) (alias-table nz)])
+            :let [vname  (format "%s/%s" nz-str sym)]
+            :when (.startsWith vname phrase)]
+        [vname (s/join ", " (-> f meta :arglists))]))
+    []))
 #_ (prn 'clojure-ns-vars* (test #'clojure-ns-vars*))
 
 (defn
