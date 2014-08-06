@@ -33,36 +33,6 @@ endfunction
 
 function! neoclojure#of(fname)
   let [success, dirname] = neoclojure#project_root_path(a:fname)
-
-  let cwd = getcwd()
-  silent execute 'lcd' dirname
-  if success
-    let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
-  else
-    let p = s:PM.of('neoclojure-nonproject' , printf('%s run -m clojure.main/repl', g:neoclojure_lein))
-  endif
-
-  silent execute 'lcd' cwd
-
-  if p.is_new()
-    call p.reserve_wait(['.*=>'])
-          \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln(printf(
-          \   '(load-file "%s/neoclojure.clj")',
-          \   escape(s:_SFILEDIR, '"')))
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln("(ns neoclojure)")
-          \.reserve_wait(['user=>'])
-    call add(s:_ps, p)
-  endif
-
-  return p
-endfunction
-
-" new
-function! neoclojure#of(fname)
-  let [success, dirname] = neoclojure#project_root_path(a:fname)
   if !success
     let dirname = '.'
   endif
