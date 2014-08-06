@@ -5,7 +5,7 @@
             [cemerick.pomegranate :as p]
             [cemerick.pomegranate.aether :as aether]))
 
-(defn parse-clojure [code]
+(defn parse-clojure-one [^String code]
   (try
     (binding [r/*read-eval* false]
       (->> code
@@ -13,13 +13,13 @@
         r/read))
     (catch clojure.lang.ExceptionInfo e e)))
 
-(defn parse-clojure-all [code]
-  (parse-clojure (str "[" code "]")))
+(defn parse-clojure-all [^String code]
+  (parse-clojure-one (str "[" code "]")))
 
 (defn-
   ^{:doc "Give me the path of project.clj file"}
   project-file->pomegranate-hashmap [^String project-filepath]
-  (let [[_ _ _ & attrs-vec] (parse-clojure (slurp project-filepath))
+  (let [[_ _ _ & attrs-vec] (parse-clojure-one (slurp project-filepath))
         attrs (apply hash-map attrs-vec)]
     {:coordinates (:dependencies attrs)
      :repositories (merge aether/maven-central
