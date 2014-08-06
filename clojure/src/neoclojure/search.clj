@@ -17,7 +17,7 @@
 
 (defn ^String ->vimson [x]
   (cond
-    (vector? x)
+    (or (seq? x) (vector? x))
     (str "[" (s/join ", " (map ->vimson x)) "]")
 
     (keyword? x)

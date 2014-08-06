@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/tools.reader "0.8.5"]
                  [com.cemerick/pomegranate "0.3.0"]
+                 [org.clojure/core.incubator "0.1.3"]
                  ; Dirty hack -- without this leininge takes 0.1.2
                  ; which doesn't work with clj-http
                  [org.apache.httpcomponents/httpclient "4.3.3"]]
