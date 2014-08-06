@@ -1,4 +1,1 @@
-if get(g:, 'neoclojure_autowarmup', 0)
-  let p = neoclojure#of(expand('%'))
-  call p.tick()
-endif
+if get(g:, 'neoclojure_autowarmup', 0) | call neoclojure#of(expand('%')).tick() | endif

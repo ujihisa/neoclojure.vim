@@ -46,11 +46,11 @@ function! neoclojure#of(fname)
     call p.reserve_wait(['.*=>'])
           \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
           \.reserve_wait(['user=>'])
-          \.reserve_writeln(printf(
-          \   '(do (require ''neoclojure.core) (require ''neoclojure.search) (neoclojure.core/initialize "%s"))',
-          \   escape(dirname, '"')))
+          \.reserve_writeln("(ns neoclojure (:require [neoclojure.core] [neoclojure.search]))")
           \.reserve_wait(['user=>'])
-          \.reserve_writeln("(ns neoclojure)")
+          \.reserve_writeln(printf(
+          \   '(neoclojure.core/initialize "%s")',
+          \   escape(dirname, '"')))
           \.reserve_wait(['user=>'])
     call add(s:_ps, p)
   endif
