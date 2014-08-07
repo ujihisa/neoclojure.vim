@@ -33,7 +33,6 @@
     (p/add-dependencies :coordinates c :repositories r)))
 
 (defn initialize [^String sfiledir]
-  (p/add-classpath (str sfiledir "../autoload"))
   (add-dependencies-from-project-file (str sfiledir "/project.clj"))
   (p/add-classpath (str sfiledir "/src")))
 
