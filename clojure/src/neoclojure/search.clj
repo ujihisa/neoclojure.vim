@@ -204,10 +204,10 @@
           []
           (conj [:M (to-hashmap (distinct java-instance-methods))]
                 [:S (to-hashmap (concat
-                                  (distinct java-static-methods)
-                                  (distinct clojure-ns-vars)))]
+                                  (distinct clojure-ns-vars)
+                                  (distinct java-static-methods)))]
                 [:P (to-hashmap (concat
-                                  (set java-namespaces)
+                                  (distinct java-namespaces)
                                   java-unimported-namespaces))]
                 [:E (to-hashmap (distinct java-enum-constants))])
           ->vimson)))))
