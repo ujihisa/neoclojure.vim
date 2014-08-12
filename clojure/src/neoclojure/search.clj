@@ -202,16 +202,16 @@
                 [fqdn-name "(not imported yet)"]))]
         (->
           []
-          (conj [:M (to-hashmap (set java-instance-methods))]
+          (conj [:M (to-hashmap (distinct java-instance-methods))]
                 [:S (to-hashmap (concat
-                                  (set java-static-methods)
-                                  (set clojure-ns-vars)))]
+                                  (distinct java-static-methods)
+                                  (distinct clojure-ns-vars)))]
                 [:P (to-hashmap (concat
                                   (set java-namespaces)
                                   java-unimported-namespaces))]
-                [:E (to-hashmap (set java-enum-constants))])
+                [:E (to-hashmap (distinct java-enum-constants))])
           ->vimson)))))
-#_ (prn 'complete-candidates (test #'complete-candidates))
+(prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]
