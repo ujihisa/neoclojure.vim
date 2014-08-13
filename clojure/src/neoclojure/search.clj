@@ -120,8 +120,10 @@
 (defn
   ^{:tag String
     :test (fn []
-            (prn "[[\"M\", {\".toPlainString\":[\"java.math.BigDecimal\"]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
-                 (complete-candidates "(ns aaa)" ".toPlai")))}
+            (prn "[[\"M\", {\".toPlainString\":[{\"classes\":\"java.math.BigDecimal\"}]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+                 (complete-candidates "(ns aaa)" ".toPlai"))
+            (assert (= "[[\"M\", {\".toPlainString\":[{\"classes\":\"java.math.BigDecimal\"}]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+                       (complete-candidates "(ns aaa)" ".toPlai"))))}
   complete-candidates [ns-declare phrase]
   (let [given-ns (eval-in&give-me-ns ns-declare)]
     (cond
@@ -202,16 +204,28 @@
                 [fqdn-name "(not imported yet)"]))]
         (->
           []
-          (conj [:M (to-hashmap (distinct java-instance-methods))]
-                [:S (to-hashmap (concat
-                                  (distinct clojure-ns-vars)
-                                  (distinct java-static-methods)))]
-                [:P (to-hashmap (concat
-                                  (distinct java-namespaces)
-                                  java-unimported-namespaces))]
-                [:E (to-hashmap (distinct java-enum-constants))])
+          (conj [:M (->> (distinct java-instance-methods)
+                      to-hashmap
+                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (into {}))]
+                [:S (->> (concat
+                           (distinct clojure-ns-vars)
+                           (distinct java-static-methods))
+                      to-hashmap
+                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (into {}))]
+                [:P (->> (concat
+                           (distinct java-namespaces)
+                           java-unimported-namespaces)
+                      to-hashmap
+                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (into {}))]
+                [:E (->> (distinct java-enum-constants)
+                      to-hashmap
+                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (into {}))])
           ->vimson)))))
-(prn 'complete-candidates (test #'complete-candidates))
+#_ (prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
 (doseq  [x (rest *command-line-args*)]

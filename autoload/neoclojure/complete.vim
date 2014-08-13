@@ -95,9 +95,8 @@ function! neoclojure#complete#omni(findstart, base)
     let candidates = []
     for [kind, dict_t] in table
       for [k, v] in items(dict_t)
-        let rank = s:L.all('v:val =~ "^java\\.lang\\."', v) ? 0 : 1
         call add(candidates, {
-              \ 'word': k, 'menu': join(v, ', '), 'rank': rank,
+              \ 'word': k, 'menu': join(v.classes, ', '), 'rank': v.rank,
               \ 'icase': 1, 'kind': kind})
       endfor
     endfor
