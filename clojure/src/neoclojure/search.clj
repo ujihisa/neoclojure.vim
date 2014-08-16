@@ -206,23 +206,23 @@
           []
           (conj [:M (->> (distinct java-instance-methods)
                       to-hashmap
-                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (map (fn [[k v]] [k {:classes v :rank (if (every? #(re-find #"^java\.lang" %) v) 0 1)}]))
                       (into {}))]
                 [:S (->> (concat
                            (distinct clojure-ns-vars)
                            (distinct java-static-methods))
                       to-hashmap
-                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (map (fn [[k v]] [k {:classes v :rank (if (every? #(re-find #"^java\.lang" %) v) 0 1)}]))
                       (into {}))]
                 [:P (->> (concat
                            (distinct java-namespaces)
                            java-unimported-namespaces)
                       to-hashmap
-                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (map (fn [[k v]] [k {:classes v :rank (if (every? #(re-find #"^java\.lang" %) v) 0 1)}]))
                       (into {}))]
                 [:E (->> (distinct java-enum-constants)
                       to-hashmap
-                      (map (fn [[k v]] [k {:classes v :rank 1}]))
+                      (map (fn [[k v]] [k {:classes v :rank (if (every? #(re-find #"^java\.lang" %) v) 0 1)}]))
                       (into {}))])
           ->vimson)))))
 #_ (prn 'complete-candidates (test #'complete-candidates))
