@@ -15,7 +15,7 @@ Enjoy.
 >
 	augroup vimrc-neoclojure
 	  autocmd!
-	  autocmd FileType clojure setlocal omnifunc=neoclojure#complete
+	  autocmd FileType clojure setlocal omnifunc=neoclojure#complete#omni
 	augroup END
 <
 
