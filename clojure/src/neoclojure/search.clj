@@ -120,9 +120,9 @@
 (defn
   ^{:tag String
     :test (fn []
-            (prn "[[\"M\", {\".toPlainString\":[{\"classes\":\"java.math.BigDecimal\"}]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+            (prn "[[\"M\", {\".toPlainString\":{\"classes\":[\"java.math.BigDecimal\"], \"rank\":0}}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
                  (complete-candidates "(ns aaa)" ".toPlai"))
-            (assert (= "[[\"M\", {\".toPlainString\":[{\"classes\":\"java.math.BigDecimal\"}]}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
+            (assert (= "[[\"M\", {\".toPlainString\":{\"classes\":[\"java.math.BigDecimal\"], \"rank\":0}}], [\"S\", {}], [\"P\", {}], [\"E\", {}]]"
                        (complete-candidates "(ns aaa)" ".toPlai"))))}
   complete-candidates [ns-declare phrase]
   (let [given-ns (eval-in&give-me-ns ns-declare)]
