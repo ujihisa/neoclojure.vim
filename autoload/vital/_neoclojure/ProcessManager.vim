@@ -3,22 +3,22 @@ set cpo&vim
 
 let s:_processes = {}
 
-function! s:_vital_loaded(V)
+function! s:_vital_loaded(V) abort
   let s:V = a:V
   let s:Prelude = s:V.import('Prelude')
   let s:S = s:V.import('Data.String')
   let s:P = s:V.import('Process')
 endfunction
 
-function! s:_vital_depends()
+function! s:_vital_depends() abort
   return ['Data.String', 'Process']
 endfunction
 
-function! s:is_available()
+function! s:is_available() abort
   return s:P.has_vimproc()
 endfunction
 
-function! s:touch(name, cmd)
+function! s:touch(name, cmd) abort
   if has_key(s:_processes, a:name)
     return 'existing'
   else
@@ -28,30 +28,32 @@ function! s:touch(name, cmd)
   endif
 endfunction
 
-function! s:_stop(i, ...)
+function! s:_stop(i, ...) abort
   let p = s:_processes[a:i]
   call p.kill(get(a:000, 0, 0) ? g:vimproc#SIGKILL : g:vimproc#SIGTERM)
   " call p.waitpid()
   call p.checkpid()
   unlet s:_processes[a:i]
-  unlet s:state[a:i]
+  if has_key(s:state, a:i)
+    unlet s:state[a:i]
+  endif
 endfunction
 
-function! s:term(i)
+function! s:term(i) abort
   return s:_stop(a:i, 0)
 endfunction
 
-function! s:kill(i)
+function! s:kill(i) abort
   return s:_stop(a:i, 1)
 endfunction
 
-function! s:read(i, endpatterns)
+function! s:read(i, endpatterns) abort
   return s:read_wait(a:i, 0.05, a:endpatterns)
 endfunction
 
 let s:state = {}
 
-function! s:read_wait(i, wait, endpatterns)
+function! s:read_wait(i, wait, endpatterns) abort
   if !has_key(s:_processes, a:i)
     throw printf("ProcessManager doesn't know about %s", a:i)
   endif
@@ -87,11 +89,11 @@ function! s:read_wait(i, wait, endpatterns)
   endwhile
 endfunction
 
-function! s:state(i)
+function! s:state(i) abort
   return get(s:state, a:i, 'undefined')
 endfunction
 
-function! s:write(i, str)
+function! s:write(i, str) abort
   if !has_key(s:_processes, a:i)
     throw printf("ProcessManager doesn't know about %s", a:i)
   endif
@@ -105,11 +107,11 @@ function! s:write(i, str)
   return 'active'
 endfunction
 
-function! s:writeln(i, str)
+function! s:writeln(i, str) abort
   return s:write(a:i, a:str . "\n")
 endfunction
 
-function! s:status(i)
+function! s:status(i) abort
   if !has_key(s:_processes, a:i)
     throw printf("ProcessManager doesn't know about %s", a:i)
   endif
@@ -123,7 +125,7 @@ function! s:status(i)
         \ : 'inactive'
 endfunction
 
-function! s:debug_processes()
+function! s:debug_processes() abort
   return s:_processes
 endfunction
 
@@ -142,43 +144,43 @@ function! s:of(label, command)
         \ 'label': a:label,
         \ '*mailbox*': ['*new*'],
         \ '*buffer*': ['', ''],
-        \ 'is_new': function('s:is_new'),
-        \ 'is_idle': function('s:is_idle'),
-        \ 'shutdown': function('s:shutdown'),
-        \ 'reserve_wait': function('s:reserve_wait'),
-        \ 'reserve_writeln': function('s:reserve_writeln'),
-        \ 'reserve_read': function('s:reserve_read'),
-        \ 'go_bulk': function('s:go_bulk'),
-        \ 'go_part': function('s:go_part'),
-        \ 'tick': function('s:tick')}
+        \ 'is_new': function('s:_is_new'),
+        \ 'is_idle': function('s:_is_idle'),
+        \ 'shutdown': function('s:_shutdown'),
+        \ 'reserve_wait': function('s:_reserve_wait'),
+        \ 'reserve_writeln': function('s:_reserve_writeln'),
+        \ 'reserve_read': function('s:_reserve_read'),
+        \ 'go_bulk': function('s:_go_bulk'),
+        \ 'go_part': function('s:_go_part'),
+        \ 'tick': function('s:_tick')}
   let s:_processes2[a:label] = p
   return p
 endfunction
 
-function! s:is_new() dict
+function! s:_is_new() dict
   return self['*mailbox*'] ==# ['*new*']
 endfunction
 
-function! s:is_idle() dict
+function! s:_is_idle() dict
   return empty(self['*mailbox*'])
 endfunction
 
-function! s:shutdown() dict
+function! s:_shutdown() dict
   call s:kill(self.label)
   unlet! s:_processes2[self.label]
 endfunction
 
-function! s:reserve_wait(endpatterns) dict
+function! s:_reserve_wait(endpatterns) dict
   call s:_reserve(self, 'wait', a:endpatterns)
   return self
 endfunction
 
-function! s:reserve_writeln(line) dict
+function! s:_reserve_writeln(line) dict
   call s:_reserve(self, 'writeln', a:line)
   return self
 endfunction
 
-function! s:reserve_read(endpatterns) dict
+function! s:_reserve_read(endpatterns) dict
   call s:_reserve(self, 'read', a:endpatterns)
   return self
 endfunction
@@ -197,7 +199,9 @@ function! s:_trigger(self)
     return trigger2
   endif
 
-  let [msgkey, msgvalue] = a:self['*mailbox*'][0]
+  " @vimlint(EVL102, 0, l:_)
+  let [_, msgvalue] = a:self['*mailbox*'][0]
+  " @vimlint(EVL102, 1, l:_)
 
   let [out, err, t] = s:read(a:self.label, msgvalue)
   if t ==# 'matched'
@@ -229,18 +233,18 @@ function! s:_trigger2(self)
   endif
 endfunction
 
-function! s:go_bulk() dict
+function! s:_go_bulk() dict
   return s:_go('bulk', self)
 endfunction
 
-function! s:go_part() dict
+function! s:_go_part() dict
   return s:_go('part', self)
 endfunction
 
 function! s:_go(bulk_or_part, self)
   let self = a:self
   if self.is_idle()
-    throw 'Vital.ProcessManager: go has nothing to do'
+    throw 'vital: ProcessManager: go has nothing to do'
   endif
   let [msgkey, msgvalue] = self['*mailbox*'][0]
 
@@ -251,7 +255,7 @@ function! s:_go(bulk_or_part, self)
     return result
 
   elseif state ==# 'reading' && msgkey ==# 'writeln'
-    throw 'Must not happen!!!!!!!!!!!!!1'
+    throw 'vital: ProcessManager: Must not happen!!!!!!!!!!!!!1'
 
   elseif state ==# 'reading' && msgkey ==# 'wait'
     call s:read(self.label, msgvalue)
@@ -280,7 +284,6 @@ function! s:_go(bulk_or_part, self)
     if msgkey ==# 'writeln'
       return s:_trigger(self)
     elseif msgkey ==# 'wait'
-      let result = {'done': 0, 'fail': 0}
       call remove(self['*mailbox*'], 0)
       return self.go_bulk()
     elseif msgkey ==# 'read'
@@ -296,7 +299,7 @@ function! s:_go(bulk_or_part, self)
   endif
 endfunction
 
-function! s:tick() dict
+function! s:_tick() dict
   if self.is_idle()
     return
   endif
