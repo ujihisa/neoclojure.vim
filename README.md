@@ -1,3 +1,24 @@
+neoclojure
+* complete (fast and sync)
+* quickrun (slow and async)
+    * libraries
+    * under proj: uses the project
+    * outside proj: uses dummy "unnamed" project
+* ref (fast and sync)
+* leiningen? (e.g. lein run)
+
+* executes project.clj
+* executes dependencies (including current project)
+* parses current buffer
+
+* spawns dummy unnamed project by stardup asynchronously
+
+* debugging itself
+    * logger
+    * test
+    * fault tolerance
+
+
 # neoclojure.vim
 
 This is under development!

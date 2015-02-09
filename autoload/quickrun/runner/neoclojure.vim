@@ -4,7 +4,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 let g:neoclojure_quickrun_default_project_dir =
-      \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp')
+      \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp/.neoclojure-quickrun')
 
 let s:runner = {}
 
@@ -18,13 +18,13 @@ function! s:runner.validate()
 endfunction
 
 function! s:runner.run(commands, input, session)
+  if !isdirectory(g:neoclojure_quickrun_default_project_dir)
+    mkdir(g:neoclojure_quickrun_default_project_dir)
+  endif
+
   let fname = expand('%')
   let p = neoclojure#of(
         \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
-  " if !p.is_new() && !p.is_idle()
-  "   echoerr 'Busy. Try again.'
-  "   return
-  " endif
 
   let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
   call p.reserve_writeln(message)
