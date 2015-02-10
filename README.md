@@ -47,7 +47,10 @@ Optional dependency plugins
 ```vim
 augroup vimrc-neoclojure
   autocmd!
-  autocmd FileType clojure setlocal omnifunc=neoclojure#complete
+  " If you use neocomplete
+  autocmd FileType clojure setlocal omnifunc=neoclojure#complete#omni_auto
+  " Otherwise
+  autocmd FileType clojure setlocal omnifunc=neoclojure#complete#omni
 augroup END
 ```
 

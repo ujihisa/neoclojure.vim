@@ -46,8 +46,6 @@ function! s:runner.run(commands, input, session)
 endfunction
 
 function! s:receive(key, fname)
-  call s:CP.tick(label)
-
   if s:_is_cmdwin()
     return 0
   endif
@@ -56,6 +54,7 @@ function! s:receive(key, fname)
   let session = quickrun#session(a:key)
   let label = neoclojure#of(a:fname)
 
+  call s:CP.tick(label)
   let [out, err] = s:CP.takeout(label, 'quickrun')
   call session.output(out . (err ==# '' ? '' : printf('!!!%s!!!', err)))
 

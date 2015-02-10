@@ -63,10 +63,24 @@ function! neoclojure#complete#omni_timed(findstart, base)
 endfunction
 
 function! neoclojure#complete#omni(findstart, base)
-  let label = neoclojure#of(expand('%'))
+  if a:findstart
+    let line_before = getline('.')[0 : col('.') - 2]
+    return s:findstart(line_before)
+  else
+    let label = neoclojure#of(expand('%'))
+    call s:CP.tick(label)
+    return s:complete(a:base, label)
+  endif
+endfunction
 
+" autocompletion specific version
+"
+" Basically same to neoclojure#complete#omni, but this cancels when
+" neoclojure know it will take long time.
+function! neoclojure#complete#omni_auto(findstart, base)
   " dirty hack; it should be done in config or in neocomplete
-  if exists('*neocomplete#initialize') && synIDattr(synIDtrans(synID(line("."), col("."), 1)), 'name') ==# "String"
+  "exists('*neocomplete#initialize') &&
+  if synIDattr(synIDtrans(synID(line("."), col("."), 1)), 'name') ==# "String"
     return -1
   endif
 
@@ -74,30 +88,43 @@ function! neoclojure#complete#omni(findstart, base)
     let line_before = getline('.')[0 : col('.') - 2]
     return s:findstart(line_before)
   else
-    let [success, ns_declare, warn] = neoclojure#ns_declare(label, getline(1, '$'))
-    if len(warn)
-      echomsg warn
-    endif
-    if !success
+    let label = neoclojure#of(expand('%'))
+    call s:CP.tick(label)
+
+    " If it's auto-completion, this should give up early
+    if s:CP.is_busy(label)
+      echomsg 'neoclojure is not ready yet. Try again.'
       return []
     endif
 
-    let [success, table] = s:search(label, ns_declare, a:base)
-    if !success
-      echomsg table
-      return []
-    endif
-
-    let candidates = []
-    for [kind, dict_t] in table
-      for [k, v] in items(dict_t)
-        call add(candidates, {
-              \ 'word': k, 'menu': join(v.classes, ', '), 'rank': v.rank,
-              \ 'icase': 1, 'kind': kind})
-      endfor
-    endfor
-    return s:L.sort_by(candidates, '-v:val["rank"]')
+    return s:complete(a:base, label)
   endif
+endfunction
+
+function! s:complete(base, label) abort
+  let [success, ns_declare, warn] = neoclojure#ns_declare(a:label, getline(1, '$'))
+  if len(warn)
+    echomsg warn
+  endif
+  if !success
+    return []
+  endif
+
+  let [success, table] = s:search(a:label, ns_declare, a:base)
+  if !success
+    echomsg table
+    return []
+  endif
+
+  let candidates = []
+  for [kind, dict_t] in table
+    for [k, v] in items(dict_t)
+      call add(candidates, {
+            \ 'word': k, 'menu': join(v.classes, ', '), 'rank': v.rank,
+            \ 'icase': 1, 'kind': kind})
+    endfor
+  endfor
+  return s:L.sort_by(candidates, '-v:val["rank"]')
 endfunction
 
 function! neoclojure#complete#test()

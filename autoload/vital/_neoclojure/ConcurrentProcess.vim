@@ -141,6 +141,10 @@ function! s:queue(label, queries) abort
   let s:_process_info[a:label].queries += a:queries
 endfunction
 
+function! s:is_busy(label) abort
+  return len(s:_process_info[a:label].queries) > 0
+endfunction
+
 " Just to wipe out the log
 function! s:log_clear(label) abort
   let s:_process_info[a:label].logs = []
