@@ -1,7 +1,6 @@
 let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
 
 let s:V = vital#of('neoclojure')
-let s:PM = s:V.import('ProcessManager')
 let s:CP = s:V.import('ConcurrentProcess')
 let s:L = s:V.import('Data.List')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
@@ -37,7 +36,7 @@ function! neoclojure#of(fname) abort
     let dirname = '.'
   endif
 
-  let p = s:CP.of(
+  let label = s:CP.of(
         \ printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein),
         \ printf('%s/../clojure/', s:_SFILEDIR),
         \ [
@@ -50,26 +49,28 @@ function! neoclojure#of(fname) abort
         \     '(neoclojure.core/initialize "%s")',
         \     escape(dirname, '"'))],
         \   ['*read*', '_', 'user=>']])
-  let s:_ps = s:L.uniq(s:_ps + [p])
+  let s:_ps = s:L.uniq(s:_ps + [label])
 
-  return p
+  return label
 endfunction
 
-function! neoclojure#ns_declare(p, lines)
+function! neoclojure#ns_declare(label, lines)
   let to_write = printf(
         \   '(neoclojure.search/find-ns-declare "%s")',
         \   escape(join(a:lines, "\n"), '"\'))
-  call a:p.reserve_writeln(to_write)
-        \.reserve_read(['user=>'])
+  call s:CP.queue(a:label, [
+        \ ['*writeln*', to_write],
+        \ ['*read*', 'ns_declare', 'user=>']])
   while 1 " blocking!
-    let result = a:p.go_bulk()
-    if result.done && len(result.err)
-      return [1, '(ns dummy)', result.err]
-    elseif result.done
-      return [1, result.out, result.err]
-    elseif result.fail
-      call a:p.shutdown()
-      return [0, 'Process is dead', '']
+    call s:CP.tick(a:label)
+    if s:CP.is_done(a:label, 'ns_declare')
+      let [out, err] = s:CP.takeout(a:label, 'ns_declare')
+
+      if len(err)
+        return [1, '(ns dummy)', err]
+      else
+        return [1, out, err]
+      endif
     endif
   endwhile
 endfunction
@@ -81,39 +82,11 @@ function! neoclojure#complete(findstart, base)
 endfunction
 
 function! neoclojure#killall()
-  for p in s:_ps
-    call p.shutdown()
+  for label in s:_ps
+    " Not implemented yet
+    call s:CP.shutdown(label)
   endfor
   let s:_ps = []
-endfunction
-
-function! neoclojure#dev_quickrun()
-  let p = neoclojure#of(expand('%'))
-  " check if this file is under src as well
-
-  if !p.is_idle()
-    echoerr 'Busy. Try again.'
-    return
-  endif
-
-  " let ns = printf('%s.%s',
-  "       \ expand('%:p:h:t'),
-  "       \ substitute(expand('%:t:r'), '_', '-', 'g'))
-  call p.reserve_writeln(printf('(load-file "%s")', escape(expand('%:p'), '"')))
-        \.reserve_read(['user=>'])
-
-  while 1
-    let result = p.go_part()
-    if result.done
-      echomsg string([result])
-      return
-    elseif has(result, 'part')
-      echomsg string(['part', result])
-    elseif result.fail
-      echoerr 'Restarting...'
-      return neoclojure#quickrun()
-    endif
-  endwhile
 endfunction
 
 function! neoclojure#warmup(fname) abort

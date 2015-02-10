@@ -2,7 +2,6 @@ neoclojure
 66573fa
 
 Data.List
-ProcessManager
 Text.Lexer
 Data.String
 ConcurrentProcess
