@@ -76,7 +76,7 @@ function! s:tick(label) abort
       let rname = pi.queries[0][1]
       let rtil = pi.queries[0][2]
 
-      let [out, err] = [pi.vp.stdout.read(), pi.vp.stderr.read()]
+      let [out, err] = [pi.vp.stdout.read(-1, 0), pi.vp.stderr.read(-1, 0)]
       call add(pi.logs, ['', out, err])
 
       " stdout: store into vars and buffer_out
@@ -114,7 +114,7 @@ function! s:tick(label) abort
       call s:tick(a:label)
     else
       " must not happen
-      throw printf("ConcurrentProcess: must not happen")
+      throw "ConcurrentProcess: must not happen"
     endif
   endif
 endfunction
@@ -143,6 +143,13 @@ endfunction
 
 function! s:is_busy(label) abort
   return len(s:_process_info[a:label].queries) > 0
+endfunction
+
+function! s:shutdown(label) abort
+  let pi = s:_process_info[a:label]
+  call pi.vp.kill(g:vimproc#SIGKILL)
+  call pi.vp.checkpid()
+  unlet s:_process_info[a:label]
 endfunction
 
 " Just to wipe out the log

@@ -83,7 +83,6 @@ endfunction
 
 function! neoclojure#killall()
   for label in s:_ps
-    " Not implemented yet
     call s:CP.shutdown(label)
   endfor
   let s:_ps = []
