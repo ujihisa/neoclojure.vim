@@ -49,7 +49,7 @@ function! s:search(label, ns_declare, partial_methodname)
         let rtn = [1, eval(s:S.lines(out)[0])]
         return rtn " this let is vital for avoiding Vim script's bug
       catch
-        return [0, string([v:exception, result])]
+        return [0, string([v:exception, [out, err]])]
       endtry
     endif
   endwhile
