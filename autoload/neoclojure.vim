@@ -2,8 +2,8 @@ let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
 
 let s:V = vital#of('neoclojure')
 let s:PM = s:V.import('ProcessManager')
+let s:CP = s:V.import('ConcurrentProcess')
 let s:L = s:V.import('Data.List')
-call s:V.load('Process')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 let s:_ps = get(s:, '_ps', []) " Don't initialize when you reload for development
@@ -17,7 +17,7 @@ function! s:is_root_directory(path)
 endfunction
 
 function! neoclojure#is_available()
-  return s:V.Process.has_vimproc() && executable(g:neoclojure_lein)
+  return s:CP.is_available() && executable(g:neoclojure_lein)
 endfunction
 
 function! neoclojure#project_root_path(fname)
@@ -31,29 +31,26 @@ function! neoclojure#project_root_path(fname)
   return [0, '']
 endfunction
 
-function! neoclojure#of(fname)
+function! neoclojure#of(fname) abort
   let [success, dirname] = neoclojure#project_root_path(a:fname)
   if !success
     let dirname = '.'
   endif
 
-  let cwd = getcwd()
-  silent execute 'lcd' printf('%s/../clojure/', s:_SFILEDIR)
-  let p = s:PM.of('neoclojure-' . dirname, printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein))
-  silent execute 'lcd' cwd
-
-  if p.is_new()
-    call p.reserve_wait(['.*=>'])
-          \.reserve_writeln('(clojure.main/repl :prompt #(print "\nuser=>"))')
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln("(ns neoclojure (:require [neoclojure.core] [neoclojure.search]))")
-          \.reserve_wait(['user=>'])
-          \.reserve_writeln(printf(
-          \   '(neoclojure.core/initialize "%s")',
-          \   escape(dirname, '"')))
-          \.reserve_wait(['user=>'])
-    call add(s:_ps, p)
-  endif
+  let p = s:CP.of(
+        \ printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein),
+        \ printf('%s/../clojure/', s:_SFILEDIR),
+        \ [
+        \   ['*read*', '_', '.*=>\s*'],
+        \   ['*writeln*', '(clojure.main/repl :prompt #(print "\nuser=>"))'],
+        \   ['*read*', '_', 'user=>'],
+        \   ['*writeln*', '(ns neoclojure (:require [neoclojure.core] [neoclojure.search]))'],
+        \   ['*read*', '_', 'user=>'],
+        \   ['*writeln*', printf(
+        \     '(neoclojure.core/initialize "%s")',
+        \     escape(dirname, '"'))],
+        \   ['*read*', '_', 'user=>']])
+  let s:_ps = s:L.uniq(s:_ps + [p])
 
   return p
 endfunction
@@ -117,4 +114,9 @@ function! neoclojure#dev_quickrun()
       return neoclojure#quickrun()
     endif
   endwhile
+endfunction
+
+function! neoclojure#warmup(fname) abort
+  let label = neoclojure#of(a:fname)
+  call s:CP.tick(label)
 endfunction

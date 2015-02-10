@@ -13,10 +13,11 @@ function! s:_vital_loaded(V) abort
   let s:V = a:V
   let s:L = s:V.import('Data.List')
   let s:S = s:V.import('Data.String')
+  let s:P = s:V.import('Process')
 endfunction
 
 function! s:_vital_depends() abort
-  return ['Data.List', 'Data.String']
+  return ['Data.List', 'Data.String', 'Process']
 endfunction
 
 function! s:is_available() abort
@@ -53,6 +54,19 @@ function! s:of(command, dir, initial_queries) abort
   return label
 endfunction
 
+function! s:_split_at_last_newline(str) abort
+  if len(a:str) == 0
+    return ['', '']
+  endif
+
+  let xs = split(a:str, ".*\n\\zs", 1)
+  if len(xs) >= 2
+    return [xs[0], xs[1]]
+  else
+    return ['', a:str]
+  endif
+endfunction
+
 function! s:tick(label) abort
   let pi = s:_process_info[a:label]
   if len(pi.queries)
@@ -64,16 +78,24 @@ function! s:tick(label) abort
 
       let [out, err] = [pi.vp.stdout.read(), pi.vp.stderr.read()]
       call add(pi.logs, ['', out, err])
-      let pi.buffer_out .= out
+
+      " stdout: store into vars and buffer_out
+      if !has_key(pi.vars, rname)
+        let pi.vars[rname] = ['', '']
+      endif
+      let [left, right] = s:_split_at_last_newline(pi.buffer_out . out)
+      let pi.vars[rname][0] .= left
+      let pi.buffer_out = right
+
+      " stderr: directly store into buffer_err
       let pi.buffer_err .= err
 
       let pattern = "\\(^\\|\n\\)" . rtil . '$'
       " wait ended.
       if pi.buffer_out =~ pattern
         if rname !=# '_'
-          let pi.vars[rname] = [
-                \ s:S.substitute_last(pi.buffer_out, pattern, ''),
-                \ pi.buffer_err]
+          let pi.vars[rname][0] .= s:S.substitute_last(pi.buffer_out, pattern, '')
+          let pi.vars[rname][1] = pi.buffer_err
         endif
 
         call remove(pi.queries, 0)
@@ -98,9 +120,11 @@ function! s:tick(label) abort
 endfunction
 
 function! s:takeout(label, varname) abort
-  if has_key(s:_process_info[a:label].vars, a:varname)
-    let memo = s:_process_info[a:label].vars[a:varname]
-    call remove(s:_process_info[a:label].vars, a:varname)
+  let pi = s:_process_info[a:label]
+
+  if has_key(pi.vars, a:varname)
+    let memo = pi.vars[a:varname]
+    call remove(pi.vars, a:varname)
     return memo
   else
     return ['', '']

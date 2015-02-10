@@ -3,6 +3,9 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:V = vital#of('neoclojure')
+let s:CP = s:V.import('ConcurrentProcess')
+
 let g:neoclojure_quickrun_default_project_dir =
       \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp/.neoclojure-quickrun')
 
@@ -19,16 +22,17 @@ endfunction
 
 function! s:runner.run(commands, input, session)
   if !isdirectory(g:neoclojure_quickrun_default_project_dir)
-    mkdir(g:neoclojure_quickrun_default_project_dir)
+    call mkdir(g:neoclojure_quickrun_default_project_dir)
   endif
 
   let fname = expand('%')
-  let p = neoclojure#of(
+  let label = neoclojure#of(
         \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
 
   let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
-  call p.reserve_writeln(message)
-        \.reserve_read(['user=>'])
+  call s:CP.queue(label, [
+        \ ['*writeln*', message],
+        \ ['*read*', 'quickrun', 'user=>']])
 
   let key = a:session.continue()
 
@@ -48,24 +52,18 @@ function! s:receive(key, fname)
   call feedkeys(mode() ==# 'i' ? "\<C-g>\<ESC>" : "g\<ESC>", 'n')
 
   let session = quickrun#session(a:key)
-  let p = neoclojure#of(a:fname)
+  let label = neoclojure#of(a:fname)
 
-  let result = p.go_part()
-  if result.fail
-    call g:quickrun#V.Vim.Message.warn('The process is inactive. Restarting...')
-    call p.shutdown()
-    autocmd! plugin-quickrun-neoclojure
-    call session.finish(1)
-    return session.run()
-  elseif has_key(result, 'part')
-    call session.output(result.part.out . (result.part.err ==# '' ? '' : printf('!!!%s!!!', result.part.err)))
-    return 0
-  elseif result.done
-    call session.output(result.out . (result.err ==# '' ? '' : printf('!!!%s!!!', result.err)))
+  call s:CP.tick(label)
+  if s:CP.is_done(label, 'quickrun')
+    let [out, err] = s:CP.takeout(label, 'quickrun')
+    call session.output(out . (err ==# '' ? '' : printf('!!!%s!!!', err)))
     autocmd! plugin-quickrun-neoclojure
     call session.finish(0)
     return 1
   else
+    let [out, err] = s:CP.takeout(label, 'quickrun')
+    call session.output(out . (err ==# '' ? '' : printf('!!!%s!!!', err)))
     return 0
   endif
 endfunction
