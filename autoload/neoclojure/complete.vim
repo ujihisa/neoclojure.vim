@@ -38,7 +38,6 @@ function! s:search(label, ns_declare, partial_methodname)
         \ ['*read*', 'search', 'user=>']])
 
   while 1 " yes it is blocking for now
-    call s:CP.tick(a:label)
     if s:CP.is_done(a:label, 'search')
       let [out, err] = s:CP.takeout(a:label, 'search')
       if len(err)
@@ -68,7 +67,6 @@ function! neoclojure#complete#omni(findstart, base)
     return s:findstart(line_before)
   else
     let label = neoclojure#of(expand('%'))
-    call s:CP.tick(label)
     return s:complete(a:base, label)
   endif
 endfunction
@@ -89,7 +87,6 @@ function! neoclojure#complete#omni_auto(findstart, base)
     return s:findstart(line_before)
   else
     let label = neoclojure#of(expand('%'))
-    call s:CP.tick(label)
 
     " If it's auto-completion, this should give up early
     if s:CP.is_busy(label)

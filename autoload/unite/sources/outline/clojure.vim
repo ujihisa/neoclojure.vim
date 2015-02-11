@@ -3,7 +3,9 @@ function! unite#sources#outline#clojure#outline_info()
 endfunction
 
 let s:Util = unite#sources#outline#import('Util')
-let s:S = vital#of('neoclojure').import('Data.String')
+let s:V = vital#of('neoclojure')
+let s:CP = s:V.import('ConcurrentProcess')
+let s:S = s:V.import('Data.String')
 
 "-----------------------------------------------------------------------------
 " Outline Info

@@ -51,6 +51,7 @@ function! s:of(command, dir, initial_queries) abort
           \ 'buffer_out': '', 'buffer_err': '', 'vars': {}}
   endif
 
+  call s:tick(label)
   return label
 endfunction
 
@@ -69,53 +70,58 @@ endfunction
 
 function! s:tick(label) abort
   let pi = s:_process_info[a:label]
-  if len(pi.queries)
-    let qlabel = pi.queries[0][0]
 
-    if qlabel ==# '*read*'
-      let rname = pi.queries[0][1]
-      let rtil = pi.queries[0][2]
+  if len(pi.queries) == 0
+    return
+  endif
 
-      let [out, err] = [pi.vp.stdout.read(-1, 0), pi.vp.stderr.read(-1, 0)]
-      call add(pi.logs, ['', out, err])
+  let is_alive = get(pi.vp.checkpid(), 0, '') ==# 'run'
 
-      " stdout: store into vars and buffer_out
-      if !has_key(pi.vars, rname)
-        let pi.vars[rname] = ['', '']
+  let qlabel = pi.queries[0][0]
+
+  if qlabel ==# '*read*'
+    let rname = pi.queries[0][1]
+    let rtil = pi.queries[0][2]
+
+    let [out, err] = [pi.vp.stdout.read(-1, 0), pi.vp.stderr.read(-1, 0)]
+    call add(pi.logs, ['', out, err])
+
+    " stdout: store into vars and buffer_out
+    if !has_key(pi.vars, rname)
+      let pi.vars[rname] = ['', '']
+    endif
+    let [left, right] = s:_split_at_last_newline(pi.buffer_out . out)
+    let pi.vars[rname][0] .= left
+    let pi.buffer_out = right
+
+    " stderr: directly store into buffer_err
+    let pi.buffer_err .= err
+
+    let pattern = "\\(^\\|\n\\)" . rtil . '$'
+    " wait ended.
+    if pi.buffer_out =~ pattern
+      if rname !=# '_'
+        let pi.vars[rname][0] .= s:S.substitute_last(pi.buffer_out, pattern, '')
+        let pi.vars[rname][1] = pi.buffer_err
       endif
-      let [left, right] = s:_split_at_last_newline(pi.buffer_out . out)
-      let pi.vars[rname][0] .= left
-      let pi.buffer_out = right
 
-      " stderr: directly store into buffer_err
-      let pi.buffer_err .= err
-
-      let pattern = "\\(^\\|\n\\)" . rtil . '$'
-      " wait ended.
-      if pi.buffer_out =~ pattern
-        if rname !=# '_'
-          let pi.vars[rname][0] .= s:S.substitute_last(pi.buffer_out, pattern, '')
-          let pi.vars[rname][1] = pi.buffer_err
-        endif
-
-        call remove(pi.queries, 0)
-        let pi.buffer_out = ''
-        let pi.buffer_err = ''
-
-        call s:tick(a:label)
-      endif
-    elseif qlabel ==# '*writeln*'
-      let wbody = pi.queries[0][1]
-      call pi.vp.stdin.write(wbody . "\n")
       call remove(pi.queries, 0)
-
-      call add(pi.logs, [wbody . "\n", '', ''])
+      let pi.buffer_out = ''
+      let pi.buffer_err = ''
 
       call s:tick(a:label)
-    else
-      " must not happen
-      throw "ConcurrentProcess: must not happen"
     endif
+  elseif qlabel ==# '*writeln*'
+    let wbody = pi.queries[0][1]
+    call pi.vp.stdin.write(wbody . "\n")
+    call remove(pi.queries, 0)
+
+    call add(pi.logs, [wbody . "\n", '', ''])
+
+    call s:tick(a:label)
+  else
+    " must not happen
+    throw "ConcurrentProcess: must not happen"
   endif
 endfunction
 
@@ -132,6 +138,8 @@ function! s:takeout(label, varname) abort
 endfunction
 
 function! s:is_done(label, rname) abort
+  call s:tick(label)
+
   return s:L.all(
         \ printf('v:val[0] ==# "*read*" && v:val[1] !=# %s', string(a:rname)),
         \ s:_process_info[a:label].queries)
@@ -142,6 +150,8 @@ function! s:queue(label, queries) abort
 endfunction
 
 function! s:is_busy(label) abort
+  call s:tick(label)
+
   return len(s:_process_info[a:label].queries) > 0
 endfunction
 

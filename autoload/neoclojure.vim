@@ -62,7 +62,6 @@ function! neoclojure#ns_declare(label, lines)
         \ ['*writeln*', to_write],
         \ ['*read*', 'ns_declare', 'user=>']])
   while 1 " blocking!
-    call s:CP.tick(a:label)
     if s:CP.is_done(a:label, 'ns_declare')
       let [out, err] = s:CP.takeout(a:label, 'ns_declare')
 
@@ -90,5 +89,6 @@ endfunction
 
 function! neoclojure#warmup(fname) abort
   let label = neoclojure#of(a:fname)
-  call s:CP.tick(label)
+  " of() does it, so no need to run tick()
+  " call s:CP.tick(label)
 endfunction
