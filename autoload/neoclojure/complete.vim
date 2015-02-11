@@ -50,13 +50,6 @@ function! s:search(label, ns_declare, partial_methodname)
   endtry
 endfunction
 
-function! neoclojure#complete#omni_timed(findstart, base)
-  let t = reltime()
-  let rtn = neoclojure#complete#omni(a:findstart, a:base)
-  echomsg string(reltimestr(reltime(t))) . 'sec'
-  return rtn
-endfunction
-
 function! neoclojure#complete#omni(findstart, base)
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
