@@ -54,7 +54,7 @@ function! s:receive(key, fname)
   let session = quickrun#session(a:key)
   let label = neoclojure#of(a:fname)
 
-  let [out, err] = s:CP.takeout(label, 'quickrun')
+  let [out, err] = s:CP.consume(label, 'quickrun')
   call session.output(out . (err ==# '' ? '' : printf('!!!%s!!!', err)))
 
   if s:CP.is_done(label, 'quickrun')

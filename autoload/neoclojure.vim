@@ -61,17 +61,12 @@ function! neoclojure#ns_declare(label, lines)
   call s:CP.queue(a:label, [
         \ ['*writeln*', to_write],
         \ ['*read*', 'ns_declare', 'user=>']])
-  while 1 " blocking!
-    if s:CP.is_done(a:label, 'ns_declare')
-      let [out, err] = s:CP.consume(a:label, 'ns_declare')
-
-      if len(err)
-        return [1, '(ns dummy)', err]
-      else
-        return [1, out, err]
-      endif
-    endif
-  endwhile
+  let [out, err, timedout_p] = s:CP.consume_all_blocking(a:label, 'ns_declare', 60)
+  if len(err) || timedout_p
+    return [1, '(ns dummy)', err]
+  else
+    return [1, out, err]
+  endif
 endfunction
 
 " Deprecated

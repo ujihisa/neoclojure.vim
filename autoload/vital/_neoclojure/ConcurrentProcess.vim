@@ -125,8 +125,16 @@ function! s:tick(label) abort
   endif
 endfunction
 
-function! s:takeout(label, varname) abort
-  return s:consume(a:label, a:varname)
+" returns [out, err, timedout_p]
+function! s:consume_all_blocking(label, varname, timeout_sec) abort
+  let start = reltime()
+  while 1
+    if s:is_done(a:label, a:varname)
+      return s:consume(a:label, a:varname) + [0] " 0 as 'Did not timed out'
+    elseif reltime(start)[0] >= a:timeout_sec
+      return s:consume(a:label, a:varname) + [1] " 1 as 'Unfortunately it timed out'
+    endif
+  endwhile
 endfunction
 
 function! s:consume(label, varname) abort

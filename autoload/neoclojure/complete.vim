@@ -37,21 +37,17 @@ function! s:search(label, ns_declare, partial_methodname)
         \   escape(a:partial_methodname, '"\'))],
         \ ['*read*', 'search', 'user=>']])
 
-  while 1 " yes it is blocking for now
-    if s:CP.is_done(a:label, 'search')
-      let [out, err] = s:CP.consume(a:label, 'search')
-      if len(err)
-        return [0, substitute(err, '\(\r\?\n\)*$', '', '')]
-      endif
+  let [out, err, timedout_p] = s:CP.consume_all_blocking(a:label, 'search', 60)
+  if len(err) || timedout_p
+    return [0, substitute(err, '\(\r\?\n\)*$', '', '')]
+  endif
 
-      try
-        let rtn = [1, eval(s:S.lines(out)[0])]
-        return rtn " this let is vital for avoiding Vim script's bug
-      catch
-        return [0, string([v:exception, [out, err]])]
-      endtry
-    endif
-  endwhile
+  try
+    let rtn = [1, eval(s:S.lines(out)[0])]
+    return rtn " this let is vital for avoiding Vim script's bug
+  catch
+    return [0, string([v:exception, [out, err]])]
+  endtry
 endfunction
 
 function! neoclojure#complete#omni_timed(findstart, base)
