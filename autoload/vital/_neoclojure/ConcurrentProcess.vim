@@ -126,6 +126,10 @@ function! s:tick(label) abort
 endfunction
 
 function! s:takeout(label, varname) abort
+  return s:consume(a:label, a:varname)
+endfunction
+
+function! s:consume(label, varname) abort
   let pi = s:_process_info[a:label]
 
   if has_key(pi.vars, a:varname)
@@ -138,7 +142,7 @@ function! s:takeout(label, varname) abort
 endfunction
 
 function! s:is_done(label, rname) abort
-  call s:tick(label)
+  call s:tick(a:label)
 
   return s:L.all(
         \ printf('v:val[0] ==# "*read*" && v:val[1] !=# %s', string(a:rname)),
@@ -150,7 +154,7 @@ function! s:queue(label, queries) abort
 endfunction
 
 function! s:is_busy(label) abort
-  call s:tick(label)
+  call s:tick(a:label)
 
   return len(s:_process_info[a:label].queries) > 0
 endfunction

@@ -39,7 +39,7 @@ function! s:search(label, ns_declare, partial_methodname)
 
   while 1 " yes it is blocking for now
     if s:CP.is_done(a:label, 'search')
-      let [out, err] = s:CP.takeout(a:label, 'search')
+      let [out, err] = s:CP.consume(a:label, 'search')
       if len(err)
         return [0, substitute(err, '\(\r\?\n\)*$', '', '')]
       endif

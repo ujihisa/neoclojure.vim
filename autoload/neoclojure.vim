@@ -63,7 +63,7 @@ function! neoclojure#ns_declare(label, lines)
         \ ['*read*', 'ns_declare', 'user=>']])
   while 1 " blocking!
     if s:CP.is_done(a:label, 'ns_declare')
-      let [out, err] = s:CP.takeout(a:label, 'ns_declare')
+      let [out, err] = s:CP.consume(a:label, 'ns_declare')
 
       if len(err)
         return [1, '(ns dummy)', err]
