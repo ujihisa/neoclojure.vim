@@ -4,33 +4,32 @@ set cpo&vim
 let s:source = {'name': 'neoclojure'}  " {{{1
 
 function! s:source.available()
-  return neoclojure#is_available()
+  if !neoclojure#is_available()
+    return 0
+  endif
+  let s:CP = vital#of('neoclojure').import('ConcurrentProcess')
+  return 1
 endfunction
 
 function! s:source.get_body(query)
-  return 'done'
   let query = a:query
-  let classpath = $CLASSPATH
-  let $CLASSPATH = s:classpath()
   let pre = s:precode()
-  try
-    if query =~ '^#".*"$'
-      let query = query[2 : -2]
-    else
-      let res = s:clj(printf('%s(doc %s)', pre, query))
-      if res.stderr == '' && res.stdout != ''
-        let body = res.stdout
-        let query = matchstr(body, '^-*\n\zs.\{-}\ze\n')
-        return query != '' ? {'body': body, 'query': query} : body
-      endif
+  if query =~ '^#".*"$'
+    let query = query[2 : -2]
+  else
+    let res = s:clj(printf('%s(doc %s)', pre, query))
+    echomsg string(['res1', res])
+    if res.stderr == '' && res.stdout != ''
+      let body = res.stdout
+      let query = matchstr(body, '^-*\n\zs.\{-}\ze\n')
+      return query != '' ? {'body': body, 'query': query} : body
     endif
-    let res = s:clj(printf('%s(find-doc "%s")', pre, escape(query, '"')))
-    if res.stdout != ''
-      return s:to_overview(res.stdout)
-    endif
-  finally
-    let $CLASSPATH = classpath
-  endtry
+  endif
+  let res = s:clj(printf('%s(find-doc "%s")', pre, escape(query, '"')))
+  echomsg string(['res2', res])
+  if res.stdout != ''
+    return s:to_overview(res.stdout)
+  endif
   throw printf('No document found for "%s"', query)
 endfunction
 
@@ -53,7 +52,17 @@ endfunction
 
 " functions. {{{1
 function! s:clj(code)
-  return ref#system(ref#to_list(g:ref_clojure_cmd, '-'), a:code)
+  " return ref#system(ref#to_list(g:ref_clojure_cmd, '-'), a:code)
+  let label = neoclojure#of(expand('%')) " TODO
+  call s:CP.queue(label, [
+        \ ['*writeln*', a:code],
+        \ ['*read*', 'ref', 'user=>']])
+  let [out, err, timedout_p] = s:CP.consume_all_blocking(label, 'ref', 60)
+  if timedout_p
+    return {'stdout': 'Timed out', 'stderr': err}
+  else
+    return {'stdout': out, 'stderr': err}
+  endif
 endfunction
 
 function! s:to_overview(body)
