@@ -18,7 +18,6 @@ function! s:source.get_body(query)
     let query = query[2 : -2]
   else
     let res = s:clj(printf('%s(doc %s)', pre, query))
-    echomsg string(['res1', res])
     if res.stderr == '' && res.stdout != ''
       let body = res.stdout
       let query = matchstr(body, '^-*\n\zs.\{-}\ze\n')
@@ -26,7 +25,6 @@ function! s:source.get_body(query)
     endif
   endif
   let res = s:clj(printf('%s(find-doc "%s")', pre, escape(query, '"')))
-  echomsg string(['res2', res])
   if res.stdout != ''
     return s:to_overview(res.stdout)
   endif
