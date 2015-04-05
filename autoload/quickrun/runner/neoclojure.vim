@@ -14,13 +14,13 @@ let s:runner = {}
 augroup plugin-quickrun-neoclojure
 augroup END
 
-function! s:runner.validate()
+function! s:runner.validate() abort
   if !neoclojure#is_available()
     throw 'Needs lein and vimproc.'
   endif
 endfunction
 
-function! s:runner.run(commands, input, session)
+function! s:runner.run(commands, input, session) abort
   if !isdirectory(g:neoclojure_quickrun_default_project_dir)
     call mkdir(g:neoclojure_quickrun_default_project_dir)
   endif
@@ -45,7 +45,7 @@ function! s:runner.run(commands, input, session)
   augroup END
 endfunction
 
-function! s:receive(key, fname)
+function! s:receive(key, fname) abort
   if s:_is_cmdwin()
     return 0
   endif
@@ -66,7 +66,7 @@ function! s:receive(key, fname)
   endif
 endfunction
 
-function! s:runner.sweep()
+function! s:runner.sweep() abort
   if has_key(self, '_autocmd')
     autocmd! plugin-quickrun-neoclojure
   endif
@@ -75,12 +75,12 @@ function! s:runner.sweep()
   endif
 endfunction
 
-function! quickrun#runner#neoclojure#new()
+function! quickrun#runner#neoclojure#new() abort
   return deepcopy(s:runner)
 endfunction
 
 " TODO use vital's
-function! s:_is_cmdwin()
+function! s:_is_cmdwin() abort
   return bufname('%') ==# '[Command Line]'
 endfunction
 
