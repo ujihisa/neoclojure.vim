@@ -5,6 +5,7 @@ set cpo&vim
 
 let s:V = vital#of('neoclojure')
 let s:CP = s:V.import('ConcurrentProcess')
+let s:M = s:V.import('Vim.Message')
 
 let g:neoclojure_quickrun_default_project_dir =
       \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp/.neoclojure-quickrun')
@@ -29,10 +30,15 @@ function! s:runner.run(commands, input, session) abort
   let label = neoclojure#of(
         \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
 
-  let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
-  call s:CP.queue(label, [
-        \ ['*writeln*', message],
-        \ ['*read*', 'quickrun', 'user=>']])
+  if s:CP.is_done(label, 'quickrun')
+    let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
+    call s:CP.queue(label, [
+          \ ['*writeln*', message],
+          \ ['*read*', 'quickrun', 'user=>']])
+  else
+    call s:CP.shutdown(label)
+    call s:M.warn("Previous process was still running, so I restarted. Try again.")
+  endif
 
   let key = a:session.continue()
 
