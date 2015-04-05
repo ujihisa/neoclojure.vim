@@ -87,3 +87,8 @@ function! neoclojure#warmup(fname) abort
   " of() does it, so no need to run tick()
   " call s:CP.tick(label)
 endfunction
+
+function! neoclojure#debug() abort
+  let label = neoclojure#of(expand('%'))
+  call s:CP.log_dump(label)
+endfunction
