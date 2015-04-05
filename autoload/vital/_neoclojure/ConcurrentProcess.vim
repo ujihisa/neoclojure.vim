@@ -108,9 +108,7 @@ function! s:tick(label) abort
     return
   endif
 
-  " TODO return value 'is_alive' can be useful
   let is_alive = get(pi.vp.checkpid(), 0, '') ==# 'run'
-  " @vimlint(EVL102, 1, l:is_alive)
 
   if !is_alive
     " Use the default supervisor.
