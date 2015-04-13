@@ -6,6 +6,7 @@ set cpo&vim
 let s:V = vital#of('neoclojure')
 let s:CP = s:V.import('ConcurrentProcess')
 let s:M = s:V.import('Vim.Message')
+let s:B = s:V.import('Vim.Buffer')
 
 let g:neoclojure_quickrun_default_project_dir =
       \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp/.neoclojure-quickrun')
@@ -52,7 +53,7 @@ function! s:runner.run(commands, input, session) abort
 endfunction
 
 function! s:receive(key, fname) abort
-  if s:_is_cmdwin()
+  if s:B.is_cmdwin()
     return 0
   endif
   call feedkeys(mode() ==# 'i' ? "\<C-g>\<ESC>" : "g\<ESC>", 'n')
@@ -83,11 +84,6 @@ endfunction
 
 function! quickrun#runner#neoclojure#new() abort
   return deepcopy(s:runner)
-endfunction
-
-" TODO use vital's
-function! s:_is_cmdwin() abort
-  return bufname('%') ==# '[Command Line]'
 endfunction
 
 " main -- executed only when this file is executed as like :source %
