@@ -142,6 +142,7 @@ function! s:tick(label) abort
     endif
   elseif qlabel ==# '*read-all*'
     let rname = pi.queries[0][1]
+    call pi.vp.stdin.close()
     call s:_read(pi, rname)
 
     " when wait ended:
@@ -231,7 +232,7 @@ endfunction
 
 " Print out log, and wipe out the log
 function! s:log_dump(label) abort
-  echomsg '-----------------------------'
+  echo '-----------------------------'
   for [stdin, stdout, stderr] in s:_process_info[a:label].logs
     echon stdin
     echon stdout

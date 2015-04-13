@@ -1,8 +1,9 @@
 neoclojure
-c726d97
+c160eb8
 
 Data.List
 Text.Lexer
 Data.String
 ConcurrentProcess
 Vim.Message
+Vim.Buffer
