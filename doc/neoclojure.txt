@@ -1,4 +1,4 @@
-*neoclojure.txt*	Wow are you already trying this?
+*neoclojure.txt*	Thanks for using this!
 
 Version: 0.1-dev
 Author: ujihisa <ujihisa at gmail com>
