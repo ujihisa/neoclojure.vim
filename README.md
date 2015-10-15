@@ -31,7 +31,6 @@ This is under development!
 
 * [leiningen](http://leiningen.org/)
 * [vimproc.vim](https://github.com/Shougo/vimproc.vim)
-  * Recommended [additional patch](https://gist.github.com/ujihisa/4666b417034040295828) for speed.
 
 Optional dependency plugins
 
