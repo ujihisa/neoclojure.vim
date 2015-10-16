@@ -1,5 +1,5 @@
 neoclojure
-* complete (fast and sync)
+* Code complete (fast and sync)
 * quickrun (slow and async)
     * libraries
     * under proj: uses the project
