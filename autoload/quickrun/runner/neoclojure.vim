@@ -28,8 +28,9 @@ function! s:runner.run(commands, input, session) abort
   endif
 
   let fname = expand('%')
-  let label = neoclojure#of(
-        \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
+  " let label = neoclojure#of(
+        " \ len(fname) ? fname : printf('%s/dummy.clj', g:neoclojure_quickrun_default_project_dir))
+  let label = neoclojure#of(fname)
 
   if s:CP.is_done(label, 'quickrun')
     let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
