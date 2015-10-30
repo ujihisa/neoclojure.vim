@@ -1,9 +1,9 @@
 (ns neoclojure.core
-  (:use [clojure.pprint :only [pprint]])
   (:require [clojure.tools.reader :as r]
             [clojure.tools.reader.reader-types :as rt]
             [cemerick.pomegranate :as p]
-            [cemerick.pomegranate.aether :as aether]))
+            [cemerick.pomegranate.aether :as aether]
+            [clojure.pprint :refer [pprint]]))
 
 (defn parse-clojure-one [^String code]
   (try
