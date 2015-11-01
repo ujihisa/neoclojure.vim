@@ -1,8 +1,8 @@
 (ns neoclojure.search
-  (:use [clojure.core.strint :only (<<)])
   (:require [clojure.string :as s]
             [clojure.repl]
-            [clojure.set]))
+            [clojure.set]
+            [clojure.core.strint :refer [<<]]))
 
 (defn
   ^{:test (fn []
