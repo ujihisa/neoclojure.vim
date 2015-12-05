@@ -15,6 +15,9 @@ function! s:is_root_directory(path)
   return (has('win32') || has('win64')) && a:path =~ '^[a-zA-Z]:[/\\]$'
 endfunction
 
+" Returns a tuple of (success/fail, fullpath of dir name)
+" e.g. [0, '']
+"      [1, '/home/ujihisa/aaa/bbb']
 function! neoclojure#is_available()
   return s:CP.is_available() && executable(g:neoclojure_lein)
 endfunction
