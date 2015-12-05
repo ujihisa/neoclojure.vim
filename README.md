@@ -96,7 +96,7 @@ What neoclojure doesn't do:
 
 <http://twitter.com/neoclojure>
 
-## License
+## Licence
 
 GPL version 3 or any later version
 Copyright (c) Tatsuhiro Ujihisa
