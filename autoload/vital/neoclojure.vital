@@ -1,5 +1,5 @@
 neoclojure
-bb1d9cb
+d1ba22eef437214e47fcfffd1d7b2bc7d1e22f0c
 
 Data.List
 Text.Lexer
@@ -7,3 +7,4 @@ Data.String
 ConcurrentProcess
 Vim.Message
 Vim.Buffer
+System.Filepath
