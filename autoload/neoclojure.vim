@@ -3,17 +3,10 @@ let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
 let s:V = vital#of('neoclojure')
 let s:CP = s:V.import('ConcurrentProcess')
 let s:L = s:V.import('Data.List')
+let s:FP = s:V.import('System.Filepath')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 let s:_ps = get(s:, '_ps', []) " Don't initialize when you reload for development
-
-" TODO move this to vital
-function! s:is_root_directory(path)
-  if a:path ==# '/'
-    return 1
-  endif
-  return (has('win32') || has('win64')) && a:path =~ '^[a-zA-Z]:[/\\]$'
-endfunction
 
 function! neoclojure#is_available()
   return s:CP.is_available() && executable(g:neoclojure_lein)
@@ -24,7 +17,7 @@ endfunction
 "      [1, '/home/ujihisa/aaa/bbb']
 function! neoclojure#project_root_path(fname)
   let dirname = fnamemodify(a:fname, ':p:h')
-  while !s:is_root_directory(dirname)
+  while !s:FP.is_root_directory(dirname)
     if filereadable(dirname . '/project.clj')
       return [1, dirname]
     endif
