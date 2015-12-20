@@ -9,7 +9,7 @@
                  [org.clojure/core.incubator "0.1.3"]
                  ; Dirty hack -- without this leininge takes 0.1.2
                  ; which doesn't work with clj-http
-                 [org.apache.httpcomponents/httpclient "4.4"]]
+                 [org.apache.httpcomponents/httpclient "4.5.1"]]
   :target-path "target/%s"
   :min-lein-version "2.5.0"
   :jvm-opts ["-Djava.security.policy=example.policy"]) ; for clojail
