@@ -1,11 +1,11 @@
 (ns neoclojure.unite-outline
-  (:use [clojure.pprint :only [pprint]]
-        [clojure.core.strint :only (<<)])
   (:require [neoclojure.core]
             [neoclojure.search]
             [clojure.string :as s]
             [clojure.tools.reader :as r]
-            [clojure.tools.reader.reader-types :as rt]))
+            [clojure.tools.reader.reader-types :as rt]
+            [clojure.pprint :refer [pprint]]
+            [clojure.core.strint :refer [<<]]))
 
 (defn run [^String fname]
   (-> (for [expr (neoclojure.core/parse-clojure-all (slurp fname))
