@@ -222,5 +222,5 @@
 #_ (prn 'complete-candidates (test #'complete-candidates))
 
 ; main -- not indented to be executed when you load this file as library
-(doseq  [x (rest *command-line-args*)]
+#_ (doseq [x (rest *command-line-args*)]
   (println (complete-candidates "(ns aaa (:import [java.net URI]))" x)))
