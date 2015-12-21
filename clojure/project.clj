@@ -14,4 +14,7 @@
   :plugins [[lein-expectations "0.0.7"]]
   :target-path "target/%s"
   :min-lein-version "2.5.0"
-  :jvm-opts ["-Djava.security.policy=example.policy"]) ; for clojail
+  :jvm-opts ["-Djava.security.policy=example.policy" ; for clojail
+             "-XX:+TieredCompilation" ; http://tnoda-clojure.tumblr.com/post/51495039433/
+             "-XX:TieredStopAtLevel=1"
+             "-Xverify:none"])

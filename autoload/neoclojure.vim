@@ -32,6 +32,8 @@ function! neoclojure#of(fname) abort
     let dirname = '.'
   endif
 
+  let before = $LEIN_FAST_TRAMPOLINE
+  let $LEIN_FAST_TRAMPOLINE = 'y' " TODO
   let label = s:CP.of(
         \ printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein),
         \ printf('%s/../clojure/', s:_SFILEDIR),
@@ -45,6 +47,8 @@ function! neoclojure#of(fname) abort
         \     '(neoclojure.core/initialize "%s")',
         \     escape(dirname, '"'))],
         \   ['*read*', '_', 'user=>']])
+  let $LEIN_FAST_TRAMPOLINE = before
+
   let s:_ps = s:L.uniq(s:_ps + [label])
 
   return label
