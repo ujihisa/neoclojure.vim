@@ -31,6 +31,7 @@ function! neoclojure#of(fname) abort
   if !success
     let dirname = '.'
   endif
+  let dirname = substitute(dirname, '\', '/', 'g')
 
   let before = $LEIN_FAST_TRAMPOLINE
   let $LEIN_FAST_TRAMPOLINE = 'y' " TODO
