@@ -55,7 +55,7 @@ function! neoclojure#of(fname) abort
   return label
 endfunction
 
-function! neoclojure#ns_declare(label, lines)
+function! neoclojure#ns_declare(label, lines) abort
   let to_write = printf(
         \   '(neoclojure.search/find-ns-declare "%s")',
         \   escape(join(a:lines, "\n"), '"\'))

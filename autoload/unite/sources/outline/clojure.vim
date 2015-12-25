@@ -23,7 +23,7 @@ let s:outline_info = {
       \}
 
 function! s:outline_info.extract_headings(context) abort
-  if a:context.trigger != 'user'
+  if a:context.trigger !=# 'user'
     return
   endif
 
