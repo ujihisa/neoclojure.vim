@@ -8,14 +8,14 @@ let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
 let s:_ps = get(s:, '_ps', []) " Don't initialize when you reload for development
 
-function! neoclojure#is_available()
+function! neoclojure#is_available() abort
   return s:CP.is_available() && executable(g:neoclojure_lein)
 endfunction
 
 " Returns a tuple of (success/fail, fullpath of dir name)
 " e.g. [0, '']
 "      [1, '/home/ujihisa/aaa/bbb']
-function! neoclojure#project_root_path(fname)
+function! neoclojure#project_root_path(fname) abort
   let dirname = fnamemodify(a:fname, ':p:h')
   while !s:FP.is_root_directory(dirname)
     if filereadable(dirname . '/project.clj')
@@ -71,12 +71,12 @@ function! neoclojure#ns_declare(label, lines)
 endfunction
 
 " Deprecated
-function! neoclojure#complete(findstart, base)
+function! neoclojure#complete(findstart, base) abort
   echomsg 'neoclojure#complete() is deprecated. Please use equivalent neoclojure#complete#omni() instead.'
   return neoclojure#complete#omni(a:findstart, a:base)
 endfunction
 
-function! neoclojure#killall()
+function! neoclojure#killall() abort
   for label in s:_ps
     call s:CP.shutdown(label)
   endfor

@@ -5,7 +5,7 @@ let s:S = s:V.import('Data.String')
 let s:CP = s:V.import('ConcurrentProcess')
 let s:_SFILEDIR = expand('<sfile>:p:h:gs?\\?/?g')
 
-function! s:findstart(line_before)
+function! s:findstart(line_before) abort
   if a:line_before ==# ''
     return 0 " shows everything
   endif
@@ -29,7 +29,7 @@ function! s:findstart(line_before)
   endif
 endfunction
 
-function! s:search(label, ns_declare, partial_methodname)
+function! s:search(label, ns_declare, partial_methodname) abort
   call s:CP.queue(a:label, [
         \ ['*writeln*', printf(
         \   '(println (neoclojure.search/complete-candidates "%s" "%s"))',
@@ -50,7 +50,7 @@ function! s:search(label, ns_declare, partial_methodname)
   endtry
 endfunction
 
-function! neoclojure#complete#omni(findstart, base)
+function! neoclojure#complete#omni(findstart, base) abort
   if a:findstart
     let line_before = getline('.')[0 : col('.') - 2]
     return s:findstart(line_before)
@@ -64,7 +64,7 @@ endfunction
 "
 " Basically same to neoclojure#complete#omni, but this cancels when
 " neoclojure know it will take long time.
-function! neoclojure#complete#omni_auto(findstart, base)
+function! neoclojure#complete#omni_auto(findstart, base) abort
   " dirty hack; it should be done in config or in neocomplete
   "exists('*neocomplete#initialize') &&
   if synIDattr(synIDtrans(synID(line("."), col("."), 1)), 'name') ==# "String"
@@ -113,7 +113,7 @@ function! s:complete(base, label) abort
   return s:L.sort_by(candidates, '-v:val["rank"]')
 endfunction
 
-function! neoclojure#complete#test()
+function! neoclojure#complete#test() abort
   if !neoclojure#is_available()
     return 'neoclojure#is_available() is false'
   endif
@@ -179,7 +179,7 @@ function! neoclojure#complete#test()
   return 'done'
 endfunction
 
-function! neoclojure#complete#test_findstart()
+function! neoclojure#complete#test_findstart() abort
   echo s:findstart('') == 0
   echo s:findstart(' ') == 1
   echo s:findstart('aaa b') == 4

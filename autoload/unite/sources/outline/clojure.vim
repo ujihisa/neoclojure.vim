@@ -1,4 +1,4 @@
-function! unite#sources#outline#clojure#outline_info()
+function! unite#sources#outline#clojure#outline_info() abort
   return s:outline_info
 endfunction
 
@@ -22,7 +22,7 @@ let s:outline_info = {
       \ ],
       \}
 
-function! s:outline_info.extract_headings(context)
+function! s:outline_info.extract_headings(context) abort
   if a:context.trigger != 'user'
     return
   endif

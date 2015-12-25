@@ -3,7 +3,7 @@ set cpo&vim
 
 let s:source = {'name': 'neoclojure'}  " {{{1
 
-function! s:source.available()
+function! s:source.available() abort
   if !neoclojure#is_available()
     return 0
   endif
@@ -11,7 +11,7 @@ function! s:source.available()
   return 1
 endfunction
 
-function! s:source.get_body(query)
+function! s:source.get_body(query) abort
   let query = a:query
   let pre = s:precode()
   if query =~ '^#".*"$'
@@ -31,11 +31,11 @@ function! s:source.get_body(query)
   throw printf('No document found for "%s"', query)
 endfunction
 
-function! s:source.opened(query)
+function! s:source.opened(query) abort
   call s:syntax()
 endfunction
 
-function! s:source.get_keyword()
+function! s:source.get_keyword() abort
   let isk = &l:iskeyword
   setlocal iskeyword+=?,-,*,!,+,/,=,<,>,.,:
   let keyword = expand('<cword>')
@@ -49,7 +49,7 @@ endfunction
 
 
 " functions. {{{1
-function! s:clj(code)
+function! s:clj(code) abort
   " return ref#system(ref#to_list(g:ref_clojure_cmd, '-'), a:code)
   let label = neoclojure#of(expand('%')) " TODO
   call s:CP.queue(label, [
@@ -63,12 +63,12 @@ function! s:clj(code)
   endif
 endfunction
 
-function! s:to_overview(body)
+function! s:to_overview(body) abort
   let parts = split(a:body, '-\{25}\n')[1 :]
   return map(parts, 'join(split(v:val, "\n")[0 : 1], "   ")')
 endfunction
 
-function! s:precode()
+function! s:precode() abort
   let given = get(g:, 'ref_clojure_precode', '')
   \         . get(b:, 'ref_clojure_precode', '')
   return given ==# '' ?
@@ -76,7 +76,7 @@ function! s:precode()
         \ given
 endfunction
 
-function! s:syntax()
+function! s:syntax() abort
   if exists('b:current_syntax') && b:current_syntax == 'ref-clojure'
     return
   endif
@@ -91,7 +91,7 @@ function! s:syntax()
   let b:current_syntax = 'ref-clojure'
 endfunction
 
-function! ref#neoclojure#define()
+function! ref#neoclojure#define() abort
   return copy(s:source)
 endfunction
 
