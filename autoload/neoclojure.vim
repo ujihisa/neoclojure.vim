@@ -70,12 +70,6 @@ function! neoclojure#ns_declare(label, lines) abort
   endif
 endfunction
 
-" Deprecated
-function! neoclojure#complete(findstart, base) abort
-  echomsg 'neoclojure#complete() is deprecated. Please use equivalent neoclojure#complete#omni() instead.'
-  return neoclojure#complete#omni(a:findstart, a:base)
-endfunction
-
 function! neoclojure#killall() abort
   for label in s:_ps
     call s:CP.shutdown(label)
