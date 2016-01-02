@@ -92,6 +92,11 @@ What neoclojure doesn't do:
     * It just spawns Clojure process and communicate with stdout/stderr instead of socket.
     * When Vim dies, Clojure process also dies. That's what it should be.
 
+### FAQ
+
+* Q. neoclojure hangs for some reason!
+    * A. is leiningen working? It doesn't work when clojars.org is down.
+
 ## Links
 
 <http://twitter.com/neoclojure>
