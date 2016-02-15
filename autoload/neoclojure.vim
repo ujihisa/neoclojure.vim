@@ -35,8 +35,9 @@ function! neoclojure#of(fname) abort
 
   let before = $LEIN_FAST_TRAMPOLINE
   let $LEIN_FAST_TRAMPOLINE = 'y' " TODO
+  " TODO insert `trampoline` before run, iff project.clj exists there
   let label = s:CP.of(
-        \ printf('%s trampoline run -m clojure.main/repl', g:neoclojure_lein),
+        \ printf('%s run -m clojure.main/main --repl', g:neoclojure_lein),
         \ printf('%s/../clojure/', s:_SFILEDIR),
         \ [
         \   ['*read*', '_', '.*=>\s*'],
