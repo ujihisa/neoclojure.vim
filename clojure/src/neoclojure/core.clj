@@ -13,7 +13,9 @@
         r/read))
     (catch clojure.lang.ExceptionInfo e e)))
 
-(defn parse-clojure-all [^String code]
+(defn parse-clojure-all
+  "Note: this does not keep original line/col for debugging."
+  [^String code]
   (parse-clojure-one (str "[" code "]")))
 
 (defn-
