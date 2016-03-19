@@ -21,8 +21,6 @@ neoclojure
 
 # neoclojure.vim
 
-This is under development!
-
 * Java method-name completion works (type `(.` in your clojure buffer)
     * no automatic `import` insertion yet
     * `(ns ...)` has to be located as the first expression of the file
@@ -63,8 +61,12 @@ let g:quickrun_config.clojure = {
 
 ## Development progress / todo
 
-* SECURITY WARNING! This plugin *executes* your clojure/java code silently. This problem will be fixed before version 0.1 release. (Current version is 0.1-dev)
-    * This plugin evaluates the first expression of the current file. If the first expression is `ns` with `:require` or `:use`, they will be evaluated, which means neoclojure will evaluate other files. Rest of expressions won't be evaluated though.
+* SECURITY WARNING! This plugin *executes* your clojure/java code silently.
+  This problem will be fixed before version 0.1 release.
+  (Current version is 0.1-dev)
+    * This plugin evaluates the first expression of the current file.
+      If the first expression is `ns` with `:require` or `:use`, they will be evaluated, which means neoclojure will evaluate other files.
+      Rest of expressions won't be evaluated though.
 * Java completions in clojure files are available
     * Class names e.g. `java.lang.String`
     * Instance Methods e.g. `(.getLocation player)`
