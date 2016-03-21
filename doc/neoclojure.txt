@@ -6,6 +6,7 @@ Author: ujihisa <ujihisa at gmail com>
 CONTENTS					*neoclojure-contents*
 
 Introduction		|neoclojure-introduction|
+FAQ			|neoclojure-faq|
 
 ==============================================================================
 INTRODUCTION					*neoclojure-introduction*
@@ -39,6 +40,22 @@ Java FQDN package-name / class-name completion:
 >
 	java.
 <
+==============================================================================
+FAQ						*neoclojure-faq*
+
+# Q. When I use neoclojure for my project, it fails with the following error
+#   message:
+# 
+# >
+# 	instance method search failed: CompilerException java.lang.NoClassDefFoundError: IllegalName: compile__stub.clj_http.headers.clj-http.headers/HeaderMap, compiling:(clj_http/headers.clj:105:1)
+# <
+# A. It's a known bug but I didn't figure out how to fix in neoclojure side.
+#   This happenes when your project directly or indirectly specify older verion
+#   of `clj-http` library.
+# 
+#   The solution currently available is to modify your project.clj file to
+#   update `clj-http` library version.
+^ should be fixed.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:

@@ -7,9 +7,10 @@
                  [org.clojure/tools.reader "0.10.0"]
                  [com.cemerick/pomegranate "0.3.0"]
                  [org.clojure/core.incubator "0.1.3"]
-                 ; Dirty hack -- without this leininge takes 0.1.2
-                 ; which doesn't work with clj-http
-                 [org.apache.httpcomponents/httpclient "4.5.2"]
+                 ; Dirty hack -- without this the following error will occur for
+                 ; projects that (indirectly) use old clj-http:
+                 ;   instance method search failed: CompilerException java.lang.NoClassDefFoundError: IllegalName: compile__stub.clj_http.headers.clj-http.headers/HeaderMap, compiling:(clj_http/headers.clj:105:1)
+                 [clj-http/clj-http "2.1.0"]
                  [expectations "2.1.4"]]
   :plugins [[lein-expectations "0.0.7"]]
   :target-path "target/%s"
