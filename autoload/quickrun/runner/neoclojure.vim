@@ -33,7 +33,9 @@ function! s:runner.run(commands, input, session) abort
   let label = neoclojure#of(fname)
 
   if s:CP.is_done(label, 'quickrun')
-    let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Exception e (clojure.repl/pst e))))')
+    " When an exception is thrown, it returns the exception object as the return value.
+    " Clojure repl formats the exception as a return value nicely, like `#error {...}`
+    let message = a:session.build_command('(do (require ''clojure.repl) (try (load-file "%S") (catch Throwable e e)))')
     call s:CP.queue(label, [
           \ ['*writeln*', message],
           \ ['*read*', 'quickrun', 'user=>']])
