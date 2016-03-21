@@ -1,5 +1,5 @@
 (ns neoclojure.core
-  (:require [clojure.tools.reader.edn :as r]
+  (:require [clojure.tools.reader :as r]
             [clojure.tools.reader.reader-types :as rt]
             [cemerick.pomegranate :as p]
             [cemerick.pomegranate.aether :as aether]
@@ -7,9 +7,10 @@
 
 (defn parse-clojure-one [^String code]
   (try
-    (->> code
-      rt/indexing-push-back-reader
-      r/read)
+    (binding [r/*read-eval* false]
+      (->> code
+        rt/indexing-push-back-reader
+        r/read))
     (catch clojure.lang.ExceptionInfo e e)))
 
 (defn parse-clojure-all [^String code]
