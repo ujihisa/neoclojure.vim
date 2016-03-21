@@ -32,7 +32,7 @@
 
 (defn- some-read-string [^String s]
   (try
-    (read-string s)
+    (clojure.edn/read-string s)
     (catch RuntimeException e nil)))
 
 (defn
