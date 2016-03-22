@@ -197,7 +197,7 @@ function! s:consume(label, varname) abort
 endfunction
 
 function! s:is_done(label, rname) abort
-  call s:tick(a:label)
+  " call s:tick(a:label)
 
   let reads = filter(
         \ copy(s:_process_info[a:label].queries),
