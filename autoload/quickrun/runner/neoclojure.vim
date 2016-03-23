@@ -9,7 +9,7 @@ let s:M = s:V.import('Vim.Message')
 let s:B = s:V.import('Vim.Buffer')
 
 let g:neoclojure_quickrun_default_project_dir =
-      \ get(g:, 'neoclojure_quickrun_default_project_dir', '/tmp/.neoclojure-quickrun')
+      \ get(g:, 'neoclojure_quickrun_default_project_dir', tempname())
 
 let s:runner = {}
 
