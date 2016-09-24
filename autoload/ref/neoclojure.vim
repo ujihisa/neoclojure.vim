@@ -95,7 +95,7 @@ function! ref#neoclojure#define() abort
   return copy(s:source)
 endfunction
 
-call ref#register_detection('clojure', 'neoclojure')
+call ref#register_detection('clojure', 'neoclojure', 'overwrite')
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
