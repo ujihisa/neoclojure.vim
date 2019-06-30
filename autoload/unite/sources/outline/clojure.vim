@@ -3,7 +3,7 @@ function! unite#sources#outline#clojure#outline_info() abort
 endfunction
 
 let s:Util = unite#sources#outline#import('Util')
-let s:V = vital#neoclojure#of()
+let s:V = vital#neoclojure#new()
 let s:CP = s:V.import('ConcurrentProcess')
 let s:S = s:V.import('Data.String')
 

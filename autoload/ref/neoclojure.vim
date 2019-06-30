@@ -7,7 +7,7 @@ function! s:source.available() abort
   if !neoclojure#is_available()
     return 0
   endif
-  let s:CP = vital#neoclojure#of().import('ConcurrentProcess')
+  let s:CP = vital#neoclojure#new().import('ConcurrentProcess')
   return 1
 endfunction
 

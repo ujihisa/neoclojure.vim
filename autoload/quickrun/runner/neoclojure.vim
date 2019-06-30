@@ -3,7 +3,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:V = vital#neoclojure#of()
+let s:V = vital#neoclojure#new()
 let s:CP = s:V.import('ConcurrentProcess')
 let s:M = s:V.import('Vim.Message')
 let s:B = s:V.import('Vim.Buffer')

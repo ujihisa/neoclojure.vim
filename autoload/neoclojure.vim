@@ -1,6 +1,6 @@
 let g:neoclojure_lein = get(g:, 'neoclojure_lein', 'lein')
 
-let s:V = vital#neoclojure#of()
+let s:V = vital#neoclojure#new()
 let s:CP = s:V.import('ConcurrentProcess')
 let s:L = s:V.import('Data.List')
 let s:FP = s:V.import('System.Filepath')

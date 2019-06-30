@@ -1,4 +1,4 @@
-let s:V = vital#neoclojure#of()
+let s:V = vital#neoclojure#new()
 let s:LX = s:V.import('Text.Lexer')
 let s:L = s:V.import('Data.List')
 let s:S = s:V.import('Data.String')
